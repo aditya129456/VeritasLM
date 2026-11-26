@@ -1,7 +1,7 @@
 # Research Report: Information-Theoretic Entropy Filtering in Hallucination Detection
 
 **Date:** October 2026  
-**Repository:** `IML_PROJECT`  
+**Repository:** `VeritasLM`  
 **Study Scope:** Empirical evaluation of low-entropy token pruning ($H_t < \tau$) across three open-weights causal language models (Qwen 2.5/3.5 0.8B, Llama 3.2 1B Instruct, Gemma 3 1B IT) for downstream hallucination classification.
 
 ---

@@ -117,11 +117,11 @@ $$\Delta = \text{Configuration Metric} - \text{Internal ONLY Metric}$$
 
 ## 7. Artifact Manifest
 
-- **Evaluation Pipeline**: [src/evaluation/cross_dataset.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/evaluation/cross_dataset.py)
-- **Module Interface**: [src/evaluation/\_\_init\_\_.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/evaluation/__init__.py)
-- **Unit & Integration Tests**: [tests/test_cross_dataset.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/tests/test_cross_dataset.py)
-- **Results JSON**: [cross_dataset_results.json](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/cross_dataset/cross_dataset_results.json)
-- **Results CSV (24 runs)**: [cross_dataset_results.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/cross_dataset/cross_dataset_results.csv)
-- **Per-Dataset CSV (24 runs)**: [cross_dataset_per_dataset.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/cross_dataset/cross_dataset_per_dataset.csv)
-- **Predictions Parquet (32,000 rows)**: [cross_dataset_predictions.parquet](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/cross_dataset/cross_dataset_predictions.parquet)
-- **Summary Report**: [cross_dataset_summary.md](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/cross_dataset/cross_dataset_summary.md)
+- **Evaluation Pipeline**: [src/evaluation/cross_dataset.py](../src/evaluation/cross_dataset.py)
+- **Module Interface**: [src/evaluation/\_\_init\_\_.py](../src/evaluation/__init__.py)
+- **Unit & Integration Tests**: [tests/test_cross_dataset.py](../tests/test_cross_dataset.py)
+- **Results JSON**: [cross_dataset_results.json](../experiments/cross_dataset/cross_dataset_results.json)
+- **Results CSV (24 runs)**: [cross_dataset_results.csv](../experiments/cross_dataset/cross_dataset_results.csv)
+- **Per-Dataset CSV (24 runs)**: [cross_dataset_per_dataset.csv](../experiments/cross_dataset/cross_dataset_per_dataset.csv)
+- **Predictions Parquet (32,000 rows)**: [cross_dataset_predictions.parquet](../experiments/cross_dataset/cross_dataset_predictions.parquet)
+- **Summary Report**: [cross_dataset_summary.md](../experiments/cross_dataset/cross_dataset_summary.md)

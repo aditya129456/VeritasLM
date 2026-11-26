@@ -98,10 +98,10 @@ Both features were retained in all internal-signal conditions (A, D, E, G) in co
 
 ## 7. Artifact Manifest
 
-- **Ablation Pipeline**: [src/evaluation/ablation_study.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/evaluation/ablation_study.py)
-- **Unit & Integration Tests**: [tests/test_ablation_study.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/tests/test_ablation_study.py)
-- **Full Results JSON**: [ablation_results.json](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/ablation/ablation_results.json)
-- **Overall Metrics CSV**: [ablation_results.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/ablation/ablation_results.csv)
-- **Per-Dataset CSV**: [ablation_per_dataset.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/ablation/ablation_per_dataset.csv)
-- **Test Predictions Parquet**: [ablation_test_predictions.parquet](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/ablation/ablation_test_predictions.parquet)
-- **Summary Report**: [ablation_summary.md](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/ablation/ablation_summary.md)
+- **Ablation Pipeline**: [src/evaluation/ablation_study.py](../src/evaluation/ablation_study.py)
+- **Unit & Integration Tests**: [tests/test_ablation_study.py](../tests/test_ablation_study.py)
+- **Full Results JSON**: [ablation_results.json](../experiments/ablation/ablation_results.json)
+- **Overall Metrics CSV**: [ablation_results.csv](../experiments/ablation/ablation_results.csv)
+- **Per-Dataset CSV**: [ablation_per_dataset.csv](../experiments/ablation/ablation_per_dataset.csv)
+- **Test Predictions Parquet**: [ablation_test_predictions.parquet](../experiments/ablation/ablation_test_predictions.parquet)
+- **Summary Report**: [ablation_summary.md](../experiments/ablation/ablation_summary.md)

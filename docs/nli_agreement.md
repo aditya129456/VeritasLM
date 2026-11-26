@@ -87,7 +87,7 @@ $$\text{nli\_disagreement} = \text{mean\_pairwise\_contradiction} + 0.5 \times \
   - `2: neutral`
 
 ### 4.2 Pilot Data Controls
-- **Input Data**: The exact 100 generated candidate responses from the self-consistency pilot ([`pilot_generations_raw.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/self_consistency/pilot_generations_raw.parquet)).
+- **Input Data**: The exact 100 generated candidate responses from the self-consistency pilot ([`pilot_generations_raw.parquet`](../experiments/baselines/self_consistency/pilot_generations_raw.parquet)).
 - **No new generations were created**: Guarantees direct experimental comparability between self-consistency and NLI signals.
 - **Evaluation scale**:
   - 20 benchmark examples
@@ -179,7 +179,7 @@ Below are three representative qualitative cases illustrating the NLI model's ab
 
 ## 7. Output Artifacts & Data Schema
 
-Outputs are persisted in [`experiments/baselines/nli_agreement/`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/nli_agreement/):
+Outputs are persisted in [`experiments/baselines/nli_agreement/`](../experiments/baselines/nli_agreement/):
 
 1. **`pilot_nli_pairwise.parquet` / `.csv`** (200 rows):
    - `id`: Example identifier.

@@ -1,7 +1,7 @@
 # Research Report: Semantic Entropy Clustering in Hallucination Detection
 
 **Date:** October 2026  
-**Repository:** `IML_PROJECT`  
+**Repository:** `VeritasLM`  
 **Study Scope:** Implementation, concurrent retraining, and empirical benchmark evaluation of Semantic Entropy Clustering (Kuhn et al., Nature / ICLR 2023) across three open causal language models:
 - **Qwen 3.5 (0.8B)** (`Qwen/Qwen3.5-0.8B`)
 - **Meta Llama 3.2 (1B Instruct)** (`meta-llama/Llama-3.2-1B-Instruct`)

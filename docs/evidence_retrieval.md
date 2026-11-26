@@ -183,7 +183,7 @@ Inspecting specific cases validates the core conceptual goal: separating whether
 
 ## 6. Output Artifacts & Data Schema
 
-Outputs are saved in [`experiments/baselines/evidence_retrieval/`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/evidence_retrieval/):
+Outputs are saved in [`experiments/baselines/evidence_retrieval/`](../experiments/baselines/evidence_retrieval/):
 
 1. **`pilot_retrieval_results.parquet` / `.csv`** (20 rows):
    - `id`: Unique example ID.

@@ -306,7 +306,7 @@ streamlit run app/app.py
 ## 📁 Repository Directory Structure
 
 ```
-IML_PROJECT/
+VeritasLM/
 ├── app/                           # VeritasLM Streamlit Observability Platform
 │   ├── app.py                     # Application entrypoint & view router
 │   ├── config.py                  # Model specifications, hardware detection & thresholds
@@ -399,8 +399,8 @@ IML_PROJECT/
 
 ```powershell
 # Clone the repository
-git clone https://github.com/Prizznce/IML_PROJECT.git
-cd IML_PROJECT
+git clone https://github.com/aditya129456/VeritasLM.git
+cd VeritasLM
 
 # Create virtual environment
 python -m venv .venv
@@ -512,6 +512,6 @@ This project is licensed under the MIT License. If you use this methodology or c
   title = {VeritasLM: Catching an LLM Lying — A Lightweight Classifier for Real-Time Hallucination Detection from Internal Generation Signals},
   year = {2026},
   publisher = {GitHub},
-  howpublished = {\url{https://github.com/Prizznce/IML_PROJECT}}
+  howpublished = {\url{https://github.com/aditya129456/VeritasLM}}
 }
 ```

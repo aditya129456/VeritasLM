@@ -9,7 +9,7 @@ When an LLM hallucinates, its internal state transitions often exhibit statistic
 - Sharp drops in conditional probability on entity tokens, relations, or factual claims.
 - Elevated tail-token probabilities and degraded sequence perplexity.
 
-The module [`src/signals/token_signals.py`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/signals/token_signals.py) provides a reusable, mathematically verified engine for extracting these internal signals directly from the model's raw forward-pass logits.
+The module [`src/signals/token_signals.py`](../src/signals/token_signals.py) provides a reusable, mathematically verified engine for extracting these internal signals directly from the model's raw forward-pass logits.
 
 ---
 

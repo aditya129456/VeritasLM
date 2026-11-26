@@ -106,11 +106,11 @@ Calibration metrics evaluated on the test subsets:
 The generated diagrams illustrate the relationship between predicted confidence and observed empirical error:
 
 - **Logistic Regression Diagram**:
-  ![Logistic Regression Reliability Diagram](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/logistic_regression_reliability.png)
+  ![Logistic Regression Reliability Diagram](../experiments/calibration/logistic_regression_reliability.png)
   *Upper panel depicts calibration curves across uncalibrated, sigmoid, and isotonic mappings; lower panel displays test instance density across probability bins.*
 
 - **XGBoost Diagram**:
-  ![XGBoost Reliability Diagram](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/xgboost_reliability.png)
+  ![XGBoost Reliability Diagram](../experiments/calibration/xgboost_reliability.png)
   *Highlights the sharp reduction in calibration gap achieved by isotonic calibration across the middle and upper probability ranges.*
 
 ---
@@ -128,12 +128,12 @@ The generated diagrams illustrate the relationship between predicted confidence 
 
 ## 8. Artifact Manifest
 
-- **Calibration Engine**: [src/evaluation/calibration.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/evaluation/calibration.py)
-- **Unit Tests**: [tests/test_calibration.py](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/tests/test_calibration.py)
-- **Results JSON**: [calibration_results.json](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/calibration_results.json)
-- **Overall Results CSV**: [calibration_results.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/calibration_results.csv)
-- **10-Bin Reliability Tables CSV**: [calibration_reliability_tables.csv](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/calibration_reliability_tables.csv)
-- **Predictions Parquet (4,800 rows)**: [calibration_predictions.parquet](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/calibration_predictions.parquet)
-- **Summary Report**: [calibration_summary.md](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/calibration_summary.md)
-- **LR Reliability Diagram**: [logistic_regression_reliability.png](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/logistic_regression_reliability.png)
-- **XGBoost Reliability Diagram**: [xgboost_reliability.png](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/calibration/xgboost_reliability.png)
+- **Calibration Engine**: [src/evaluation/calibration.py](../src/evaluation/calibration.py)
+- **Unit Tests**: [tests/test_calibration.py](../tests/test_calibration.py)
+- **Results JSON**: [calibration_results.json](../experiments/calibration/calibration_results.json)
+- **Overall Results CSV**: [calibration_results.csv](../experiments/calibration/calibration_results.csv)
+- **10-Bin Reliability Tables CSV**: [calibration_reliability_tables.csv](../experiments/calibration/calibration_reliability_tables.csv)
+- **Predictions Parquet (4,800 rows)**: [calibration_predictions.parquet](../experiments/calibration/calibration_predictions.parquet)
+- **Summary Report**: [calibration_summary.md](../experiments/calibration/calibration_summary.md)
+- **LR Reliability Diagram**: [logistic_regression_reliability.png](../experiments/calibration/logistic_regression_reliability.png)
+- **XGBoost Reliability Diagram**: [xgboost_reliability.png](../experiments/calibration/xgboost_reliability.png)

@@ -68,15 +68,13 @@ The project addresses seven core research objectives:
 
 The methodology bridges several distinct areas in machine learning and natural language processing:
 
-- **LLM Hallucination Detection**: Hallucinations are broadly categorized into closed-domain unfaithfulness (contradicting an input context) and open-domain factual fabrication [REFERENCE NEEDED]. Detecting these errors traditionally relies on rule-based checks, external fact-checking databases, or LLM-as-a-judge prompting [REFERENCE NEEDED].
-- **Uncertainty Estimation via Token Probabilities**: Autoregressive models compute normalized softmax distributions over vocabulary tokens at each generation step. Prior research has demonstrated that minimum token probabilities and average sequence log-probabilities correlate with generation errors [REFERENCE NEEDED].
-- **Predictive Entropy and Perplexity**: Shannon entropy over the vocabulary distribution quantifies the dispersion of model beliefs. Elevated entropy or sequence perplexity often indicates that probability mass is split across multiple competing hypotheses [REFERENCE NEEDED].
-- **Self-Consistency and Semantic Dispersion**: Sampling multiple outputs at non-zero temperature and evaluating semantic agreement probes whether an answer is stable across stochastic trajectories. Disagreement among samples has been associated with epistemic uncertainty [REFERENCE NEEDED].
-- **Natural Language Inference (NLI) for Consistency**: Cross-encoder NLI models score bidirectional entailment and contradiction between claims. Evaluating pairwise mutual entailment provides a fine-grained measure of semantic divergence [REFERENCE NEEDED].
-- **Evidence Retrieval for Fact Verification**: Retrieval-augmented architectures index external passages to evaluate claim groundedness using dense bi-encoders [REFERENCE NEEDED].
-- **Lightweight Tabular Classifiers**: Gradient-boosted decision trees (XGBoost) and regularized logistic regression provide fast inference, tabular sample efficiency, and direct feature inspectability without requiring deep neural architectures [REFERENCE NEEDED].
-
-*(Note: Bibliographic references to be added from the project's verified literature sources).*
+- **LLM Hallucination Detection**: Hallucinations are broadly categorized into intrinsic unfaithfulness (contradicting an input context) and extrinsic factual fabrication (Ji et al., 2023). Detecting these errors traditionally relies on rule-based checks, external fact-checking databases (Thorne et al., 2018), or black-box consistency evaluation (Manakul et al., 2023), alongside benchmark suites such as HaluEval (Li et al., 2023) and TruthfulQA (Lin et al., 2022).
+- **Uncertainty Estimation via Token Probabilities**: Autoregressive models compute normalized softmax distributions over vocabulary tokens at each generation step. Prior research has demonstrated that token-level log-probabilities and predictive uncertainty estimates correlate with generation errors (Kuhn et al., 2023; Manakul et al., 2023).
+- **Predictive Entropy and Perplexity**: Shannon entropy (Shannon, 1948) over the vocabulary distribution quantifies the dispersion of model beliefs. Elevated entropy or sequence perplexity often indicates that probability mass is split across multiple competing hypotheses (Kuhn et al., 2023).
+- **Self-Consistency and Semantic Dispersion**: Sampling multiple outputs at non-zero temperature and evaluating semantic agreement probes whether an answer is stable across stochastic trajectories (Wang et al., 2023). Disagreement among samples has been associated with epistemic uncertainty (Manakul et al., 2023; Kuhn et al., 2023).
+- **Natural Language Inference (NLI) for Consistency**: Cross-encoder NLI models score bidirectional entailment and contradiction between claims. Evaluating pairwise mutual entailment provides a fine-grained measure of semantic divergence (Manakul et al., 2023; Kuhn et al., 2023).
+- **Evidence Retrieval for Fact Verification**: Retrieval-augmented architectures index external passages to evaluate claim groundedness using dense bi-encoders (Karpukhin et al., 2020; Thorne et al., 2018).
+- **Lightweight Tabular Classifiers**: Gradient-boosted decision trees such as XGBoost (Chen & Guestrin, 2016) and regularized logistic regression provide fast inference, tabular sample efficiency, and direct feature inspectability without requiring deep neural architectures, while calibration metrics such as Expected Calibration Error (Guo et al., 2017) verify probabilistic reliability.
 
 ---
 
@@ -294,7 +292,7 @@ Model performance was evaluated across complementary statistical dimensions:
 
 ## 15. Experimental Results
 
-The following subsections record the exact, validated metrics from [`docs/master_results_table.md`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/docs/master_results_table.md).
+The following subsections record the exact, validated metrics from [`docs/master_results_table.md`](master_results_table.md).
 
 ### Table A: Internal Signal Baseline vs. Universal Multi-Signal Detector ($N=800$ Holdout Test)
 | Pipeline / Model | Accuracy | Precision | Recall | F1 | ROC-AUC | PR-AUC | Brier Score | ECE |
@@ -538,16 +536,17 @@ Experiments were executed in a Python virtual environment (`.venv`):
 
 ## 25. References
 
-Bibliographic references to be added from the project's verified literature sources.
-
-1. Large language model hallucination surveys and taxonomies. [REFERENCE NEEDED]
-2. Token likelihood and uncertainty estimation in autoregressive models. [REFERENCE NEEDED]
-3. Predictive entropy and perplexity in natural language processing. [REFERENCE NEEDED]
-4. Self-consistency and stochastic sampling for language model reasoning. [REFERENCE NEEDED]
-5. Natural Language Inference for factual consistency evaluation. [REFERENCE NEEDED]
-6. Dense passage retrieval and open-domain question answering. [REFERENCE NEEDED]
-7. Gradient boosted decision trees and tabular classification. [REFERENCE NEEDED]
-8. Probability calibration and Expected Calibration Error in machine learning. [REFERENCE NEEDED]
+1. Ji, Z., Lee, N., Frieske, R., Yu, T., Su, D., Xu, Y., Ishii, E., Bang, Y., Chen, D., Dai, W., Chan, H. S., Madotto, A., & Fung, P. (2023). *Survey of Hallucination in Natural Language Generation*. ACM Computing Surveys, 55(12), Article 248.
+2. Manakul, P., Liusie, A., & Gales, M. J. F. (2023). *SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection for Generative Large Language Models*. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP).
+3. Kuhn, L., Gal, Y., & Farquhar, S. (2023). *Semantic Uncertainty: Linguistic Invariances for Uncertainty Estimation in Natural Language Generation*. Proceedings of the International Conference on Learning Representations (ICLR).
+4. Wang, X., Wei, J., Schuurmans, D., Le, Q., Chi, E., Narang, S., Chowdhery, A., & Zhou, D. (2023). *Self-Consistency Improves Chain of Thought Reasoning in Language Models*. Proceedings of the International Conference on Learning Representations (ICLR).
+5. Karpukhin, V., Oğuz, B., Min, S., Lewis, P., Wu, L., Edunov, S., Chen, D., & Yih, W. (2020). *Dense Passage Retrieval for Open-Domain Question Answering*. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing (EMNLP).
+6. Chen, T., & Guestrin, C. (2016). *XGBoost: A Scalable Tree Boosting System*. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '16), pp. 785–794.
+7. Guo, C., Pleiss, G., Sun, Y., & Weinberger, K. Q. (2017). *On Calibration of Modern Neural Networks*. Proceedings of the 34th International Conference on Machine Learning (ICML).
+8. Li, J., Cheng, X., Zhao, W. X., Nie, J.-Y., & Wen, J.-R. (2023). *HaluEval: A Large-Scale Hallucination Evaluation Benchmark for Large Language Models*. Proceedings of the 2023 Conference on Empirical Methods in Natural Language Processing (EMNLP).
+9. Lin, S., Hilton, J., & Evans, O. (2022). *TruthfulQA: Measuring How Models Mimic Human Falsehoods*. Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics (ACL).
+10. Thorne, J., Vlachos, A., Christodoulopoulos, C., & Mittal, A. (2018). *FEVER: a Large-scale Dataset for Fact Extraction and VERification*. Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (NAACL-HLT), pp. 809–819.
+11. Shannon, C. E. (1948). *A Mathematical Theory of Communication*. Bell System Technical Journal, 27(3), 379–423.
 
 ---
 

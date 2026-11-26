@@ -5,14 +5,14 @@
 This pipeline establishes reproducible, supervised classification baselines for detecting Large Language Model (LLM) hallucinations using internal generation signals extracted from `Qwen/Qwen3.5-0.8B`. 
 
 The modeling pipeline operates on the canonical 4,000-example supervised feature dataset:
-[`experiments/baselines/supervised_signals_combined.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/supervised_signals_combined.parquet)
+[`experiments/baselines/supervised_signals_combined.parquet`](../experiments/baselines/supervised_signals_combined.parquet)
 
 In this dataset, internal generation signals (token likelihoods, predictive entropy, sequence perplexity, and token rank distributions) were extracted strictly over the **original labeled benchmark responses** (from HaluEval, TruthfulQA, and FEVER), completely eliminating label misalignment.
 
 The modeling pipeline is implemented in:
-- [`src/training/baseline_models.py`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/training/baseline_models.py)
-- [`src/training/__init__.py`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/src/training/__init__.py)
-- Unit tests: [`tests/test_baseline_models.py`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/tests/test_baseline_models.py)
+- [`src/training/baseline_models.py`](../src/training/baseline_models.py)
+- [`src/training/__init__.py`](../src/training/__init__.py)
+- Unit tests: [`tests/test_baseline_models.py`](../tests/test_baseline_models.py)
 
 ---
 
@@ -44,7 +44,7 @@ $$\text{log\_max\_token\_rank} = \log(1 + \max(\text{max\_token\_rank}, 0))$$
 $$\text{log\_rank\_std} = \log(1 + \max(\text{rank\_std}, 0))$$
 
 ### 2.3 Strict Exclusion of Sequence Length (`num_tokens`)
-A critical finding from our feature quality and leakage analysis ([`docs/feature_quality_analysis.md`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/docs/feature_quality_analysis.md)) is that response sequence length (`num_tokens`) exhibits strong dataset-dependent correlation with benchmark labels (specifically in HaluEval, where hallucinated responses differ systematically in length from faithful answers).
+A critical finding from our feature quality and leakage analysis is that response sequence length (`num_tokens`) exhibits strong dataset-dependent correlation with benchmark labels (specifically in HaluEval, where hallucinated responses differ systematically in length from faithful answers).
 
 If `num_tokens` is provided to the baseline classifier:
 1. The model exploits token count as a trivial **shortcut feature** (spurious correlation) rather than learning true uncertainty dynamics.

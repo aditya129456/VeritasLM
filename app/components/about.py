@@ -326,7 +326,7 @@ def render_about_view():
   year = {2026},
   publisher = {GitHub},
   journal = {Applied Machine Learning Research Repository},
-  howpublished = {\\url{https://github.com/Prizznce/IML_PROJECT}}
+  howpublished = {\\url{https://github.com/aditya129456/VeritasLM}}
 }
                 </pre>
             </div>

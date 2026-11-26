@@ -3,14 +3,14 @@
 **Project:** Catching an LLM Lying: A Lightweight Classifier for Real-Time Hallucination Detection  
 **Specification:** Unified Multi-Signal Feature Schema  
 **Source Tables Joined:**
-1. [`experiments/baselines/supervised_signals_combined.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/supervised_signals_combined.parquet) (Internal Signals)
-2. [`experiments/baselines/self_consistency/full_self_consistency_aggregated.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/self_consistency/full_self_consistency_aggregated.parquet) (Self-Consistency)
-3. [`experiments/baselines/nli_agreement/full_nli_aggregated.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/nli_agreement/full_nli_aggregated.parquet) (NLI Agreement)
+1. [`experiments/baselines/supervised_signals_combined.parquet`](../experiments/baselines/supervised_signals_combined.parquet) (Internal Signals)
+2. [`experiments/baselines/self_consistency/full_self_consistency_aggregated.parquet`](../experiments/baselines/self_consistency/full_self_consistency_aggregated.parquet) (Self-Consistency)
+3. [`experiments/baselines/nli_agreement/full_nli_aggregated.parquet`](../experiments/baselines/nli_agreement/full_nli_aggregated.parquet) (NLI Agreement)
 
 **Primary Production Artifacts:**
-- [`experiments/baselines/combined/universal_features.parquet`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/combined/universal_features.parquet) (4,000 rows $\times$ 22 columns)
-- [`experiments/baselines/combined/universal_features.csv`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/combined/universal_features.csv) (4,000 rows)
-- [`experiments/baselines/combined/universal_features_summary.json`](file:///c:/Aditya_workspace/IML_Project/IML_PROJECT/experiments/baselines/combined/universal_features_summary.json)
+- [`experiments/baselines/combined/universal_features.parquet`](../experiments/baselines/combined/universal_features.parquet) (4,000 rows $\times$ 22 columns)
+- [`experiments/baselines/combined/universal_features.csv`](../experiments/baselines/combined/universal_features.csv) (4,000 rows)
+- [`experiments/baselines/combined/universal_features_summary.json`](../experiments/baselines/combined/universal_features_summary.json)
 
 ---
 
