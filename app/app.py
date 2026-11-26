@@ -4,13 +4,20 @@ Linear & Railway inspired developer UX architecture.
 """
 
 import datetime
+import os
 from pathlib import Path
 import sys
 
-# Ensure repository root is in sys.path
+# Ensure repository root precedes the app/ script directory in sys.path so
+# `import app.*` resolves to the package rather than this script (app/app.py).
+_app_dir = os.path.normcase(os.path.abspath(str(Path(__file__).resolve().parent)))
 _repo_root = str(Path(__file__).resolve().parent.parent)
-if _repo_root not in sys.path:
-    sys.path.insert(0, _repo_root)
+_repo_root_norm = os.path.normcase(os.path.abspath(_repo_root))
+sys.path[:] = [
+    p for p in sys.path
+    if os.path.normcase(os.path.abspath(p or ".")) not in (_app_dir, _repo_root_norm)
+]
+sys.path.insert(0, _repo_root)
 
 import streamlit as st
 
