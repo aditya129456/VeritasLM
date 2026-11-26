@@ -183,6 +183,7 @@ def record_detector_activity(
             "risk_level": result.get("risk_level", tier.upper().replace(" ", "_")),
         },
         "model": model_name,
+        "probing_mode": result.get("probing_mode", "standard"),
         "tier": tier,
         "time": now.strftime("%I:%M %p"),
         "internal_signals": internal_signals,

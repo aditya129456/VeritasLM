@@ -12,6 +12,14 @@ The sidebar strictly contains exactly these six items in this exact order:
 from typing import List, Tuple
 import streamlit as st
 
+from app.config import (
+    DEFAULT_DETECTOR_MODEL_TYPE,
+    DETECTOR_MODEL_TYPES,
+    MODEL_OPTIONS,
+    get_detector_mode_specs,
+)
+from src.utils.model_registry import has_intermediate_models
+
 NAV_ITEMS: List[Tuple[str, str, str]] = [
     ("Detector", "detector", ":material/radar:"),
     ("Benchmark Mode", "benchmark_mode", ":material/leaderboard:"),
@@ -98,7 +106,56 @@ def render_sidebar():
                     st.session_state["active_nav"] = label
                     st.rerun()
 
+        # Detector Model Type Selector (Below option menu, above Account section)
+        if "detector_model_type" not in st.session_state:
+            st.session_state["detector_model_type"] = DEFAULT_DETECTOR_MODEL_TYPE
 
+        active_detector_type = st.session_state["detector_model_type"]
+        selected_model_name = st.session_state.get("selected_model_name", "Qwen 3.5 (0.8B)")
+        active_model_id = MODEL_OPTIONS.get(selected_model_name, "Qwen/Qwen3.5-0.8B")
+        intermediate_ready = has_intermediate_models(active_model_id)
+
+        st.markdown(
+            """
+            <div class="sidebar-detector-section">
+                <div class="sidebar-section-label" style="margin-bottom: 4px;">DETECTOR MODEL</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        for mode_item in DETECTOR_MODEL_TYPES:
+            mode_slug = mode_item["slug"]
+            is_mode_active = (active_detector_type == mode_slug)
+            is_disabled = (mode_slug == "intermediate" and not intermediate_ready)
+            if st.button(
+                mode_item["label"],
+                key=f"sidebar_detector_{mode_slug}",
+                icon=mode_item["icon"],
+                use_container_width=True,
+                type="primary" if is_mode_active else "secondary",
+                disabled=is_disabled,
+                help=(
+                    "Intermediate probing artifacts are not available for the selected LLM."
+                    if is_disabled
+                    else mode_item["help"]
+                ),
+            ):
+                if st.session_state.get("detector_model_type") != mode_slug:
+                    st.session_state["detector_model_type"] = mode_slug
+                    st.session_state["inference_result"] = None
+                    st.session_state["bm_results"] = None
+                    st.rerun()
+
+        active_mode_specs = get_detector_mode_specs(active_detector_type)
+        st.markdown(
+            f"""
+            <div class="sidebar-detector-meta">
+                {active_mode_specs["meta"]}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         # Visual Separator & Flexible Spacer to push Appearance and Profile to the bottom
         st.markdown(

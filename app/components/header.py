@@ -17,6 +17,7 @@ def render_header(
     threshold_low: int = 35,
     threshold_high: int = 65,
     configure_dialog_fn: Optional[Callable[[], None]] = None,
+    use_intermediate_probing: bool = False,
 ):
     """
     Render Linear-style platform header, telemetry status bar, and hardware alerts.
@@ -54,6 +55,17 @@ def render_header(
         unsafe_allow_html=True,
     )
 
+    taxonomy_chip = (
+        "DETECTOR: INTERMEDIATE PROBING (92F)"
+        if use_intermediate_probing
+        else "TAXONOMY: 19-FEATURE CORE"
+    )
+    detector_badge = (
+        "INTERMEDIATE PROBE"
+        if use_intermediate_probing
+        else "UNIVERSAL CORE"
+    )
+
     # Simplified Engine & Runtime Section: Live Status Chips (Row 1) & Config Details (Row 2)
     st_col1, st_col2 = st.columns([4.4, 0.95], gap="small", vertical_alignment="center")
 
@@ -69,6 +81,9 @@ def render_header(
                             <span class="pulse-dot"></span>
                             {engine_display}
                         </span>
+                        <span class="live-badge live-badge-primary" title="Active hallucination detector model type">
+                            {detector_badge}
+                        </span>
                         <span class="live-badge {dev_badge_class}" title="Compute execution hardware">
                             <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:{dev_dot_color}; margin-right:2px;"></span>
                             {dev_label}
@@ -83,7 +98,7 @@ def render_header(
                     <div class="telemetry-config-chips">
                         <span class="telemetry-kicker-secondary">SYSTEM CONFIG</span>
                         <span class="config-chip" title="Feature extraction taxonomy dimension">
-                            TAXONOMY: 19-FEATURE CORE
+                            {taxonomy_chip}
                         </span>
                         <span class="config-chip" title="Active decision thresholds">
                             RISK THRESHOLDS: &lt;{threshold_low}% / &ge;{threshold_high}%

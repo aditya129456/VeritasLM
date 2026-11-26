@@ -34,11 +34,14 @@ def render_system_health_view(
     cpu_name: Optional[str] = None,
     cpu_display: Optional[str] = None,
     configure_dialog_fn: Optional[Any] = None,
+    use_intermediate_probing: Optional[bool] = None,
 ):
     """
     Render the comprehensive System Health, Model Registry, and Epistemic Watchdog view.
     Strictly detection-based metrics; accurately tracks user-selected compute hardware (CUDA vs CPU).
     """
+    if use_intermediate_probing is None:
+        use_intermediate_probing = (st.session_state.get("detector_model_type", "standard") == "intermediate")
     session_id = get_session_id()
     history = get_session_history()
     analytics = get_session_analytics()
@@ -142,8 +145,8 @@ def render_system_health_view(
             </div>
             <div class="health-kpi-card">
                 <div class="health-kpi-label">FEATURE MATRIX</div>
-                <div class="health-kpi-value text-cyan">19 Canonical Signals</div>
-                <div class="health-kpi-sub">Universal Core Extractor Active</div>
+                <div class="health-kpi-value text-cyan">{"92 Probing Signals" if use_intermediate_probing else "19 Canonical Signals"}</div>
+                <div class="health-kpi-sub">{"Intermediate-Layer Probing Active" if use_intermediate_probing else "Universal Core Extractor Active"}</div>
             </div>
             <div class="health-kpi-card">
                 <div class="health-kpi-label">SESSION AUDITS</div>
@@ -372,7 +375,7 @@ def render_system_health_view(
                     </div>
                     <div class="health-kv-row">
                         <span class="health-kv-key">Feature Pipeline</span>
-                        <span class="health-kv-val text-cyan">19 Canonical Internal Signals</span>
+                        <span class="health-kv-val text-cyan">{"92 Signals (19 Core + 73 Probes)" if use_intermediate_probing else "19 Canonical Internal Signals"}</span>
                     </div>
                     <div class="health-kv-row">
                         <span class="health-kv-key">Empirical ROC-AUC</span>

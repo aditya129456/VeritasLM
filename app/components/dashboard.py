@@ -250,6 +250,15 @@ def render_dashboard(
 
     st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
+    is_intermediate = (res.get("probing_mode") == "intermediate")
+    inter_features = res.get("intermediate_features") or {}
+    total_feature_count = len(UNIVERSAL_CORE_FEATURES) + len(inter_features) if is_intermediate else len(UNIVERSAL_CORE_FEATURES)
+    detector_desc = (
+        f"Intermediate Probing ({total_feature_count} Features)"
+        if is_intermediate
+        else "Phase 14 Universal Core (19 Features)"
+    )
+
     # Tier 2: Component Model & Predictive Uncertainty Telemetry (3 Wide Columns)
     s_col1, s_col2, s_col3 = st.columns(3, gap="medium")
 
@@ -265,7 +274,7 @@ def render_dashboard(
                     <span class="hud-value">{xgb_pct:.1f}%</span>
                 </div>
                 <div class="hud-desc" style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
-                    Phase 14 Universal Core (19 Features)
+                    {detector_desc}
                 </div>
             </div>
             """,
@@ -342,7 +351,7 @@ def render_dashboard(
     tab_titles = [
         "Token Uncertainty & Heatmap",
         "Feature Attribution (Tree SHAP)",
-        "Signal Channels (19 Features)",
+        f"Signal Channels ({total_feature_count} Features)",
         "Execution Profiler",
     ]
     if has_grounding:
@@ -528,14 +537,19 @@ def render_dashboard(
         else:
             st.info("No feature contributions available.")
 
-    # --- TAB 3: Signal Channels (19 Universal Core) ---
+    # --- TAB 3: Signal Channels (19 Universal Core + optional Intermediate Probes) ---
     with tabs[2]:
-        tab_internal, tab_sc, tab_nli, tab_vec = st.tabs([
+        sub_tab_names = [
             "Internal Signals (11)",
             "Self-Consistency (5)",
             "NLI Agreement (3)",
             "Canonical 19-Vector",
-        ])
+        ]
+        if is_intermediate and inter_features:
+            sub_tab_names.append(f"Intermediate Probes ({len(inter_features)})")
+
+        signal_subtabs = st.tabs(sub_tab_names)
+        tab_internal, tab_sc, tab_nli, tab_vec = signal_subtabs[:4]
 
         with tab_internal:
             st.markdown(
@@ -621,6 +635,24 @@ def render_dashboard(
                     "Standardized Value": f"{f_vec.get(feat, 0.0):.6f}",
                 })
             st.dataframe(pd.DataFrame(vector_rows), width="stretch", hide_index=True)
+
+        if is_intermediate and inter_features:
+            with signal_subtabs[4]:
+                st.markdown(
+                    "<p style='font-size: 12.5px; color: var(--text-secondary);'>"
+                    "Intermediate-layer logit-lens divergence, hidden-state geometry, and linear layer-probe logits extracted across transformer layers."
+                    "</p>",
+                    unsafe_allow_html=True,
+                )
+                inter_rows = [
+                    {
+                        "#": idx,
+                        "Intermediate Feature": feat_name,
+                        "Value": f"{float(feat_val):.6f}",
+                    }
+                    for idx, (feat_name, feat_val) in enumerate(inter_features.items(), 1)
+                ]
+                st.dataframe(pd.DataFrame(inter_rows), width="stretch", hide_index=True)
 
     # --- TAB 4: Execution Profiler ---
     with tabs[3]:
@@ -721,6 +753,7 @@ def render_dashboard(
         eval_context = res.get("context") if res.get("context") is not None else st.session_state.get("user_context", "")
         audit_payload = {
             "model_slug": active_model_id,
+            "probing_mode": res.get("probing_mode", "standard"),
             "prompt": eval_prompt,
             "context": eval_context,
             "generated_response": res["generated_response"],
@@ -735,6 +768,7 @@ def render_dashboard(
                 "high_cutoff": high_cut,
             },
             "feature_vector": res["feature_vector"],
+            "intermediate_features": inter_features,
             "stage_latencies_ms": timing_data,
             "total_latency_ms": total_elapsed,
         }

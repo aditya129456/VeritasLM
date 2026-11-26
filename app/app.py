@@ -28,6 +28,7 @@ ensure_offline_env()
 from app.assets import ICON_PNG_PATH
 from app.styles import apply_custom_styles
 from app.config import (
+    DEFAULT_DETECTOR_MODEL_TYPE,
     MODEL_OPTIONS,
     get_model_specs,
     get_hardware_info,
@@ -70,6 +71,8 @@ if "threshold_high" not in st.session_state:
     st.session_state["threshold_high"] = 65
 if "hardware_choice" not in st.session_state:
     st.session_state["hardware_choice"] = "auto"
+if "detector_model_type" not in st.session_state:
+    st.session_state["detector_model_type"] = DEFAULT_DETECTOR_MODEL_TYPE
 # Session lifecycle: unique session ID and empty history initialization
 init_session()
 
@@ -98,6 +101,7 @@ active_model_id = MODEL_OPTIONS.get(selected_model_name, "Qwen/Qwen3.5-0.8B")
 threshold_low = st.session_state["threshold_low"]
 threshold_high = st.session_state["threshold_high"]
 active_specs = get_model_specs(selected_model_name)
+use_intermediate_probing = (st.session_state.get("detector_model_type", DEFAULT_DETECTOR_MODEL_TYPE) == "intermediate")
 
 # ==============================================================================
 # 3. Sidebar (Identity, Navigation, Profile)
@@ -133,6 +137,7 @@ if active_nav == "Detector":
             gpu_display=gpu_display,
             cpu_display=cpu_display,
         ),
+        use_intermediate_probing=use_intermediate_probing,
     )
 
     analyze_clicked, prompt_text, context_text, is_evidence_mode = render_input_controls()
@@ -147,11 +152,16 @@ if active_nav == "Detector":
 
             with st.spinner("Executing 15-stage neural inference & consistency pipeline..."):
                 try:
-                    cached_models = get_cached_models(model_id=active_model_id, target_device=selected_device)
+                    cached_models = get_cached_models(
+                        model_id=active_model_id,
+                        target_device=selected_device,
+                        use_intermediate_probing=use_intermediate_probing,
+                    )
                     result = run_live_inference(
                         prompt=clean_p,
                         context=context_text.strip() if context_text.strip() else None,
                         device=selected_device,
+                        model_id=active_model_id,
                         causal_model=cached_models["causal_model"],
                         tokenizer=cached_models["tokenizer"],
                         embedding_model=cached_models["embedding_model"],
@@ -162,6 +172,8 @@ if active_nav == "Detector":
                         is_evidence_mode=is_evidence_mode,
                         max_new_tokens=int(st.session_state.get("pref_max_tokens", 128)),
                         temperature=float(st.session_state.get("pref_temperature", 0.0)),
+                        use_intermediate_probing=use_intermediate_probing,
+                        probe_bundle=cached_models.get("probe_bundle"),
                     )
                     st.session_state["inference_result"] = result
 
@@ -203,6 +215,7 @@ elif active_nav == "Benchmark Mode":
         cpu_display=cpu_display,
         threshold_low=threshold_low,
         threshold_high=threshold_high,
+        use_intermediate_probing=use_intermediate_probing,
     )
 
 # ------------------------------------------------------------------------------
@@ -220,6 +233,7 @@ elif active_nav == "System Health":
         gpu_display=gpu_display,
         cpu_name=cpu_name,
         cpu_display=cpu_display,
+        use_intermediate_probing=use_intermediate_probing,
     )
 
 # ------------------------------------------------------------------------------

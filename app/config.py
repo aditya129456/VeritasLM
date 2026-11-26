@@ -8,7 +8,8 @@ import sys
 import torch
 import streamlit as st
 
-from app.inference import load_inference_models
+from app.inference import load_inference_models, get_intermediate_classifiers
+from src.utils.model_registry import has_intermediate_models
 
 
 MODEL_OPTIONS = {
@@ -16,6 +17,35 @@ MODEL_OPTIONS = {
     "Llama 3.2 (1B Instruct)": "meta-llama/Llama-3.2-1B-Instruct",
     "Gemma 3 (1B IT)": "google/gemma-3-1b-it",
 }
+
+DETECTOR_MODEL_TYPES = [
+    {
+        "slug": "standard",
+        "label": "Universal Core (19)",
+        "short_label": "19-FEATURE CORE",
+        "icon": ":material/analytics:",
+        "meta": "19 features · Logits + SC + NLI",
+        "help": "Standard Universal Core detector using 19 output-level signals, self-consistency, and NLI agreement.",
+    },
+    {
+        "slug": "intermediate",
+        "label": "Intermediate Probing",
+        "short_label": "92-FEATURE PROBING",
+        "icon": ":material/neurology:",
+        "meta": "92 features · Logit-Lens + Layer Probes",
+        "help": "Intermediate-layer probing detector fusing the 19 Universal Core signals with 73 hidden-state and logit-lens features.",
+    },
+]
+
+DEFAULT_DETECTOR_MODEL_TYPE = "standard"
+
+
+def get_detector_mode_specs(detector_type: str) -> dict:
+    """Return display metadata for the active detector model type ('standard' or 'intermediate')."""
+    for item in DETECTOR_MODEL_TYPES:
+        if item["slug"] == detector_type:
+            return item
+    return DETECTOR_MODEL_TYPES[0]
 
 
 def get_model_specs(model_name: str):
@@ -105,11 +135,16 @@ def _load_cached_models_resource(model_id: str = "Qwen/Qwen3.5-0.8B", target_dev
     )
 
 
-def get_cached_models(model_id: str = "Qwen/Qwen3.5-0.8B", target_device: str = "cuda:0"):
+def get_cached_models(
+    model_id: str = "Qwen/Qwen3.5-0.8B",
+    target_device: str = "cuda:0",
+    use_intermediate_probing: bool = False,
+):
     """
     Load and persist models in Streamlit's resource cache across sessions and reruns.
     Ensures device placement matches target_device even if cached object was relocated.
-    Supports Qwen3.5-0.8B, Llama 3.2 1B Instruct, and Gemma 3 1B IT.
+    Supports Qwen3.5-0.8B, Llama 3.2 1B Instruct, and Gemma 3 1B IT in both
+    Standard (Universal Core) and Intermediate-Layer Probing modes.
     """
     effective_device = target_device if (torch.cuda.is_available() and "cuda" in target_device) else "cpu"
     models = _load_cached_models_resource(model_id=model_id, target_device=effective_device)
@@ -142,4 +177,19 @@ def get_cached_models(model_id: str = "Qwen/Qwen3.5-0.8B", target_device: str = 
         except Exception:
             pass
 
-    return models
+    resolved = dict(models)
+    if use_intermediate_probing:
+        if not has_intermediate_models(model_id):
+            raise FileNotFoundError(
+                f"Intermediate-layer probing artifacts not found for '{model_id}'."
+            )
+        inter_lr, inter_xgb, inter_bundle = get_intermediate_classifiers(model_id=model_id)
+        resolved["lr_pipeline"] = inter_lr
+        resolved["xgb_model"] = inter_xgb
+        resolved["probe_bundle"] = inter_bundle
+        resolved["probing_mode"] = "intermediate"
+    else:
+        resolved["probe_bundle"] = None
+        resolved["probing_mode"] = "standard"
+
+    return resolved

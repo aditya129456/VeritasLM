@@ -530,6 +530,26 @@ div:has(> div[data-testid="stHtml"]:empty) {
     color: inherit !important;
 }
 
+/* Detector Model Type Section (Below Navigation Menu, Above Account) */
+.sidebar-detector-section {
+    margin-top: 8px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid var(--border-subtle) !important;
+}
+
+.sidebar-detector-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 5px;
+    padding: 4px 8px;
+    margin-top: 3px;
+    margin-bottom: 4px;
+    line-height: 1.35;
+}
+
 /* Spacer & Profile at bottom */
 .sidebar-nav-spacer {
     flex: 1 1 auto !important;

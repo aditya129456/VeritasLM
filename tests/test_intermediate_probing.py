@@ -286,3 +286,81 @@ def test_run_live_inference_with_intermediate_probing_mocked():
     assert res["intermediate_features"] == inter_live
     assert pytest.approx(res["predicted_risk_xgb"], 1e-4) == 0.8
     assert pytest.approx(res["predicted_risk_lr"], 1e-4) == 0.7
+
+
+def test_get_cached_models_switches_detector_mode():
+    from unittest.mock import MagicMock, patch
+    from app.config import (
+        DEFAULT_DETECTOR_MODEL_TYPE,
+        DETECTOR_MODEL_TYPES,
+        get_cached_models,
+        get_detector_mode_specs,
+    )
+
+    assert DEFAULT_DETECTOR_MODEL_TYPE == "standard"
+    assert [m["slug"] for m in DETECTOR_MODEL_TYPES] == ["standard", "intermediate"]
+    assert get_detector_mode_specs("intermediate")["short_label"] == "92-FEATURE PROBING"
+
+    std_lr, std_xgb = MagicMock(name="std_lr"), MagicMock(name="std_xgb")
+    int_lr, int_xgb = MagicMock(name="int_lr"), MagicMock(name="int_xgb")
+    bundle = {"feature_columns": ["f1", "f2"]}
+    base_models = {
+        "causal_model": None,
+        "tokenizer": None,
+        "embedding_model": None,
+        "nli_model": None,
+        "nli_label_indices": {},
+        "lr_pipeline": std_lr,
+        "xgb_model": std_xgb,
+        "device": "cpu",
+    }
+
+    with patch("app.config._load_cached_models_resource", return_value=base_models), \
+         patch("app.config.has_intermediate_models", return_value=True), \
+         patch("app.config.get_intermediate_classifiers", return_value=(int_lr, int_xgb, bundle)):
+        res_std = get_cached_models(model_id="Qwen/Qwen3.5-0.8B", target_device="cpu", use_intermediate_probing=False)
+        res_int = get_cached_models(model_id="Qwen/Qwen3.5-0.8B", target_device="cpu", use_intermediate_probing=True)
+
+    assert res_std["lr_pipeline"] is std_lr
+    assert res_std["xgb_model"] is std_xgb
+    assert res_std["probe_bundle"] is None
+    assert res_std["probing_mode"] == "standard"
+
+    assert res_int["lr_pipeline"] is int_lr
+    assert res_int["xgb_model"] is int_xgb
+    assert res_int["probe_bundle"] is bundle
+    assert res_int["probing_mode"] == "intermediate"
+
+
+def test_sidebar_detector_model_toggle_in_app():
+    from streamlit.testing.v1 import AppTest
+
+    app_path = Path(__file__).resolve().parent.parent / "app" / "app.py"
+    at = AppTest.from_file(app_path, default_timeout=20)
+    at.run()
+    assert not at.exception
+
+    sidebar_keys = [btn.key for btn in at.sidebar.button]
+    assert "sidebar_nav_about" in sidebar_keys
+    assert "sidebar_detector_standard" in sidebar_keys
+    assert "sidebar_detector_intermediate" in sidebar_keys
+    assert "sidebar_nav_profile" in sidebar_keys
+
+    # Verify ordering: below option menu (about) and above accounts option (profile)
+    idx_about = sidebar_keys.index("sidebar_nav_about")
+    idx_std = sidebar_keys.index("sidebar_detector_standard")
+    idx_int = sidebar_keys.index("sidebar_detector_intermediate")
+    idx_profile = sidebar_keys.index("sidebar_nav_profile")
+    assert idx_about < idx_std < idx_int < idx_profile
+
+    assert at.session_state["detector_model_type"] == "standard"
+
+    # Switch to Intermediate Probing
+    at.sidebar.button(key="sidebar_detector_intermediate").click().run()
+    assert not at.exception
+    assert at.session_state["detector_model_type"] == "intermediate"
+
+    # Switch back to Universal Core (19)
+    at.sidebar.button(key="sidebar_detector_standard").click().run()
+    assert not at.exception
+    assert at.session_state["detector_model_type"] == "standard"

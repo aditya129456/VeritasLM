@@ -45,10 +45,13 @@ def render_benchmark_mode(
     cpu_display: str,
     threshold_low: int = 35,
     threshold_high: int = 65,
+    use_intermediate_probing: Optional[bool] = None,
 ):
     """
     Render Benchmark Mode: Multi-Model Comparison Studio and Unified Observability Dashboard.
     """
+    if use_intermediate_probing is None:
+        use_intermediate_probing = (st.session_state.get("detector_model_type", "standard") == "intermediate")
     # --------------------------------------------------------------------------
     # 1. Header & Live Telemetry Strip
     # --------------------------------------------------------------------------
@@ -106,7 +109,7 @@ def render_benchmark_mode(
                         MODEL POOL: {total_models_available} ENGINES
                     </span>
                     <span class="config-chip" title="Feature extraction taxonomy dimension">
-                        TAXONOMY: 19-FEATURE CORE
+                        {"DETECTOR: INTERMEDIATE PROBING (92F)" if use_intermediate_probing else "TAXONOMY: 19-FEATURE CORE"}
                     </span>
                     <span class="config-chip" title="Active decision thresholds">
                         RISK THRESHOLDS: &lt;{threshold_low}% / &ge;{threshold_high}%
@@ -383,7 +386,11 @@ def render_benchmark_mode(
 
                     try:
                         # 1. Fetch cached model weights and classifiers
-                        cached = get_cached_models(model_id=m_id, target_device=selected_device)
+                        cached = get_cached_models(
+                            model_id=m_id,
+                            target_device=selected_device,
+                            use_intermediate_probing=use_intermediate_probing,
+                        )
 
                         # 2. Run complete 15-stage live inference
                         t_start = time.perf_counter()
@@ -391,6 +398,7 @@ def render_benchmark_mode(
                             prompt=clean_p,
                             context=clean_c,
                             device=selected_device,
+                            model_id=m_id,
                             causal_model=cached["causal_model"],
                             tokenizer=cached["tokenizer"],
                             embedding_model=cached["embedding_model"],
@@ -401,6 +409,8 @@ def render_benchmark_mode(
                             is_evidence_mode=is_evidence_mode,
                             max_new_tokens=int(st.session_state.get("bm_pref_max_tokens", 128)),
                             temperature=float(st.session_state.get("bm_pref_temperature", 0.0)),
+                            use_intermediate_probing=use_intermediate_probing,
+                            probe_bundle=cached.get("probe_bundle"),
                         )
                         elapsed_s = time.perf_counter() - t_start
 
