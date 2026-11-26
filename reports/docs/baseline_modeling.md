@@ -5,14 +5,14 @@
 This pipeline establishes reproducible, supervised classification baselines for detecting Large Language Model (LLM) hallucinations using internal generation signals extracted from `Qwen/Qwen3.5-0.8B`. 
 
 The modeling pipeline operates on the canonical 4,000-example supervised feature dataset:
-[`experiments/baselines/supervised_signals_combined.parquet`](../experiments/baselines/supervised_signals_combined.parquet)
+[`experiments/baselines/supervised_signals_combined.parquet`](../../experiments/baselines/supervised_signals_combined.parquet)
 
 In this dataset, internal generation signals (token likelihoods, predictive entropy, sequence perplexity, and token rank distributions) were extracted strictly over the **original labeled benchmark responses** (from HaluEval, TruthfulQA, and FEVER), completely eliminating label misalignment.
 
 The modeling pipeline is implemented in:
-- [`src/training/baseline_models.py`](../src/training/baseline_models.py)
-- [`src/training/__init__.py`](../src/training/__init__.py)
-- Unit tests: [`tests/test_baseline_models.py`](../tests/test_baseline_models.py)
+- [`src/training/baseline_models.py`](../../src/training/baseline_models.py)
+- [`src/training/__init__.py`](../../src/training/__init__.py)
+- Unit tests: [`tests/test_baseline_models.py`](../../tests/test_baseline_models.py)
 
 ---
 

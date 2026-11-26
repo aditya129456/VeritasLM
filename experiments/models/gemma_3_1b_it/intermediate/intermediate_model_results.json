@@ -1,0 +1,311 @@
+{
+  "model_id": "google/gemma-3-1b-it",
+  "model_slug": "gemma_3_1b_it",
+  "training_time_s": 313.11,
+  "train_samples": 3200,
+  "test_samples": 800,
+  "total_features": 92,
+  "feature_breakdown": {
+    "universal_core": 19,
+    "intermediate_logit_lens_and_geometry": 56,
+    "intermediate_hidden_probes": 17
+  },
+  "selected_probe_specs": [
+    {
+      "layer": 10,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 13,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 16,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 13,
+      "pool_mode": "resp_last",
+      "C": 0.005
+    },
+    {
+      "layer": 17,
+      "pool_mode": "resp_last",
+      "C": 0.005
+    },
+    {
+      "layer": 7,
+      "pool_mode": "prompt_last",
+      "C": 0.005
+    },
+    {
+      "layer": 13,
+      "pool_mode": "prompt_last",
+      "C": 0.005
+    }
+  ],
+  "logit_lens_layers": [
+    6,
+    13,
+    17,
+    22
+  ],
+  "tuning_info": {
+    "best_lr_C": 0.01,
+    "best_lr_cv_score": 0.8950357421874999,
+    "best_xgb_params": {
+      "n_estimators": 250,
+      "max_depth": 5,
+      "learning_rate": 0.03,
+      "subsample": 0.8,
+      "colsample_bytree": 0.5,
+      "gamma": 0.3,
+      "reg_lambda": 5.0
+    },
+    "best_xgb_cv_score": 0.89756640625
+  },
+  "best_single_layer_probe": {
+    "layer": 13,
+    "pool_mode": "resp_mean",
+    "C": 0.005,
+    "overall": {
+      "accuracy": 0.81125,
+      "precision": 0.8058968058968059,
+      "recall": 0.82,
+      "f1": 0.8128872366790583,
+      "roc_auc": 0.9040875,
+      "pr_auc": 0.9052157183584031,
+      "brier_score": 0.12638329551581629,
+      "ece": 0.028062991297984476,
+      "confusion_matrix": {
+        "tn": 321,
+        "fp": 79,
+        "fn": 72,
+        "tp": 328
+      }
+    },
+    "subgroups": {
+      "fever": {
+        "accuracy": 0.675,
+        "precision": 0.6767676767676768,
+        "recall": 0.67,
+        "f1": 0.6733668341708543,
+        "roc_auc": 0.7523000000000002,
+        "pr_auc": 0.7906218837881835,
+        "brier_score": 0.2017670923517722,
+        "ece": 0.07284247901290657,
+        "confusion_matrix": {
+          "tn": 68,
+          "fp": 32,
+          "fn": 33,
+          "tp": 67
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.9566666666666667,
+        "precision": 0.9724137931034482,
+        "recall": 0.94,
+        "f1": 0.9559322033898305,
+        "roc_auc": 0.9908,
+        "pr_auc": 0.9882499753934986,
+        "brier_score": 0.03442197594153202,
+        "ece": 0.05761862997137997,
+        "confusion_matrix": {
+          "tn": 146,
+          "fp": 4,
+          "fn": 9,
+          "tp": 141
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.7566666666666667,
+        "precision": 0.7361963190184049,
+        "recall": 0.8,
+        "f1": 0.7667731629392971,
+        "roc_auc": 0.8336000000000001,
+        "pr_auc": 0.8193166966299003,
+        "brier_score": 0.1680887505327966,
+        "ece": 0.049042254096517954,
+        "confusion_matrix": {
+          "tn": 107,
+          "fp": 43,
+          "fn": 30,
+          "tp": 120
+        },
+        "test_samples": 300
+      }
+    }
+  },
+  "overall_metrics": {
+    "logistic_regression": {
+      "accuracy": 0.84125,
+      "precision": 0.8353808353808354,
+      "recall": 0.85,
+      "f1": 0.8426270136307311,
+      "roc_auc": 0.94114375,
+      "pr_auc": 0.9466623659471248,
+      "brier_score": 0.0998147376294521,
+      "ece": 0.04430741312312435,
+      "confusion_matrix": {
+        "tn": 333,
+        "fp": 67,
+        "fn": 60,
+        "tp": 340
+      }
+    },
+    "xgboost": {
+      "accuracy": 0.85375,
+      "precision": 0.8564231738035264,
+      "recall": 0.85,
+      "f1": 0.8531994981179423,
+      "roc_auc": 0.940525,
+      "pr_auc": 0.9459698313318273,
+      "brier_score": 0.10000161055335145,
+      "ece": 0.031089035806071506,
+      "confusion_matrix": {
+        "tn": 343,
+        "fp": 57,
+        "fn": 60,
+        "tp": 340
+      }
+    }
+  },
+  "subgroup_breakdown_by_source": {
+    "logistic_regression": {
+      "fever": {
+        "accuracy": 0.685,
+        "precision": 0.6868686868686869,
+        "recall": 0.68,
+        "f1": 0.6834170854271356,
+        "roc_auc": 0.8160000000000001,
+        "pr_auc": 0.8412080377115693,
+        "brier_score": 0.1768711781479744,
+        "ece": 0.09263652365939444,
+        "confusion_matrix": {
+          "tn": 69,
+          "fp": 31,
+          "fn": 32,
+          "tp": 68
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.9833333333333333,
+        "precision": 0.9865771812080537,
+        "recall": 0.98,
+        "f1": 0.9832775919732442,
+        "roc_auc": 0.9992444444444445,
+        "pr_auc": 0.99927659106321,
+        "brier_score": 0.012276544154705497,
+        "ece": 0.03377656289571125,
+        "confusion_matrix": {
+          "tn": 148,
+          "fp": 2,
+          "fn": 3,
+          "tp": 147
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.8033333333333333,
+        "precision": 0.7861635220125787,
+        "recall": 0.8333333333333334,
+        "f1": 0.8090614886731392,
+        "roc_auc": 0.8907555555555555,
+        "pr_auc": 0.8907129177215353,
+        "brier_score": 0.13598197075851715,
+        "ece": 0.05969627025202649,
+        "confusion_matrix": {
+          "tn": 116,
+          "fp": 34,
+          "fn": 25,
+          "tp": 125
+        },
+        "test_samples": 300
+      }
+    },
+    "xgboost": {
+      "fever": {
+        "accuracy": 0.71,
+        "precision": 0.723404255319149,
+        "recall": 0.68,
+        "f1": 0.7010309278350515,
+        "roc_auc": 0.8069,
+        "pr_auc": 0.8319237689869106,
+        "brier_score": 0.17859952530230758,
+        "ece": 0.07007834211923183,
+        "confusion_matrix": {
+          "tn": 74,
+          "fp": 26,
+          "fn": 32,
+          "tp": 68
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.9833333333333333,
+        "precision": 0.9865771812080537,
+        "recall": 0.98,
+        "f1": 0.9832775919732442,
+        "roc_auc": 0.9985333333333333,
+        "pr_auc": 0.9986842320413785,
+        "brier_score": 0.01270197177804891,
+        "ece": 0.018294010170890617,
+        "confusion_matrix": {
+          "tn": 148,
+          "fp": 2,
+          "fn": 3,
+          "tp": 147
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.82,
+        "precision": 0.8116883116883117,
+        "recall": 0.8333333333333334,
+        "f1": 0.8223684210526315,
+        "roc_auc": 0.8912444444444444,
+        "pr_auc": 0.8892026585628052,
+        "brier_score": 0.1349026394960166,
+        "ece": 0.05427085210569203,
+        "confusion_matrix": {
+          "tn": 121,
+          "fp": 29,
+          "fn": 25,
+          "tp": 125
+        },
+        "test_samples": 300
+      }
+    }
+  },
+  "delta_vs_old_universal_core": {
+    "logistic_regression": {
+      "accuracy_delta": 0.1937500000000001,
+      "f1_delta": 0.17596034696406448,
+      "roc_auc_delta": 0.2319874999999999,
+      "pr_auc_delta": 0.24129813607817419,
+      "brier_score_delta": -0.11422152140309709,
+      "ece_delta": -0.007775235154148227
+    },
+    "xgboost": {
+      "accuracy_delta": 0.13875000000000004,
+      "f1_delta": 0.13124827860574717,
+      "roc_auc_delta": 0.14918125000000004,
+      "pr_auc_delta": 0.15458682279610148,
+      "brier_score_delta": -0.08537436302891631,
+      "ece_delta": -0.00994902618433113
+    }
+  },
+  "artifacts": {
+    "saved_model_dir": "C:\\Aditya_workspace\\VeritasLM\\models\\gemma_3_1b_it_intermediate",
+    "lr_pipeline": "C:\\Aditya_workspace\\VeritasLM\\models\\gemma_3_1b_it_intermediate\\lr_pipeline.joblib",
+    "xgb_model": "C:\\Aditya_workspace\\VeritasLM\\models\\gemma_3_1b_it_intermediate\\xgb_model.joblib",
+    "layer_probes": "C:\\Aditya_workspace\\VeritasLM\\models\\gemma_3_1b_it_intermediate\\layer_probes.joblib",
+    "experiment_dir": "C:\\Aditya_workspace\\VeritasLM\\experiments\\models\\gemma_3_1b_it\\intermediate"
+  }
+}

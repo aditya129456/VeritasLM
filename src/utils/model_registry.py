@@ -96,6 +96,28 @@ def get_saved_model_dir(model_id: str) -> Path:
     return save_dir
 
 
+def get_intermediate_saved_model_dir(model_id: str) -> Path:
+    """
+    Resolve directory for serialized intermediate-layer probing classifiers.
+    Isolated from standard models/{slug}/ so existing models remain intact.
+    """
+    slug = get_model_slug(model_id)
+    save_dir = REPO_ROOT / "models" / f"{slug}_intermediate"
+    save_dir.mkdir(parents=True, exist_ok=True)
+    return save_dir
+
+
+def has_intermediate_models(model_id: str) -> bool:
+    """Return True if trained intermediate-layer probe & classifier artifacts exist on disk."""
+    slug = get_model_slug(model_id)
+    save_dir = REPO_ROOT / "models" / f"{slug}_intermediate"
+    return (
+        (save_dir / "lr_pipeline.joblib").exists()
+        and (save_dir / "xgb_model.joblib").exists()
+        and (save_dir / "layer_probes.joblib").exists()
+    )
+
+
 def get_universal_features_path(model_id: str) -> Path:
     """
     Resolve the path to universal_features.parquet for a specific model.

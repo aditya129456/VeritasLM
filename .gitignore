@@ -26,12 +26,13 @@ __pycache__/
 # Models & Checkpoints (keep directory structure)
 models/*
 !models/.gitkeep
+experiments/**/hidden_states_*.npz
+experiments/**/*checkpoint*
 
 # Datasets (keep directory structure)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
-!data/processed/.gitkeep
 !data/processed/*.parquet
 data/external/*
 !data/external/.gitkeep

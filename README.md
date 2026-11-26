@@ -2,10 +2,10 @@
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-orange.svg)](https://pytorch.org/)
-[![CUDA](https://img.shields.io/badge/CUDA-12.8%20%7C%20RTX%203050-green.svg)](https://developer.nvidia.com/cuda-toolkit)
+[![CUDA](https://img.shields.io/badge/CUDA-13.0%20%7C%20RTX%203050-green.svg)](https://developer.nvidia.com/cuda-toolkit)
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.0%2B-red.svg)](https://xgboost.readthedocs.io/)
 [![Streamlit Demo](https://img.shields.io/badge/Streamlit-Live%20App-FF4B4B.svg)](https://streamlit.io/)
-[![Tests](https://img.shields.io/badge/Tests-194%20Passing-brightgreen.svg)](tests)
+[![Tests](https://img.shields.io/badge/Tests-197%20Passing-brightgreen.svg)](tests)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -16,7 +16,7 @@ Large Language Models (LLMs) frequently generate plausible-sounding falsehoods a
 
 This research project introduces the **Universal Core Detector**: an ultra-lightweight, interpretable, multi-signal supervised classifier that estimates hallucination risk in real-time from the LLM's own internal generation dynamics, stochastic consistency behaviors, and Natural Language Inference (NLI) agreements.
 
-By fusing **11 internal generation signals** (token log-probabilities, Shannon entropy, perplexity, and token rank dispersion) with **5 behavioral self-consistency signals** and **3 cross-encoder NLI agreement features**, our classifier achieves up to **0.7913 ROC-AUC** (Gemma 3 1B) and **0.7688 ROC-AUC** (Qwen 3.5 0.8B) on an 800-instance holdout test set across 4,000 curated benchmark examples. When external evidence retrieval is available, an augmented variant reaches **0.9184 ROC-AUC**.
+By fusing **11 internal generation signals** (token log-probabilities, Shannon entropy, perplexity, and token rank dispersion) with **5 behavioral self-consistency signals** and **3 cross-encoder NLI agreement features**, our classifier achieves up to **0.7913 ROC-AUC** (Gemma 3 1B) and **0.7688 ROC-AUC** (Qwen 3.5 0.8B) on an 800-instance holdout test set across 4,000 curated benchmark examples. On the 2,500-instance subset with local reference passages (HaluEval + FEVER), a standalone retrieval-augmented variant (`Internal + Retrieval`, 17 features) reaches **0.9184 ROC-AUC**.
 
 ```
                        User Question + Optional Context
@@ -124,13 +124,13 @@ Extracted directly from the forward pass token logits and softmax distributions 
 - `max_entropy`: Maximum token entropy $\max_t H(P_t)$ identifying localized hallucination pivots.
 - `entropy_std`: Standard deviation of predictive entropy across the generation.
 - `log_perplexity`: Natural logarithm of sequence perplexity $\ln(\text{PPL})$.
-- `log_mean_token_rank`: Logarithm of average token rank in unconstrained vocabulary softmax output.
-- `log_max_token_rank`: Logarithm of maximum token rank (detects tail-token sampling).
-- `log_rank_std`: Volatility / dispersion of token rank values across the generation.
+- `log_mean_token_rank`: Log-transformed average token rank $\ln(1 + \text{mean\_token\_rank})$ in unconstrained vocabulary softmax output.
+- `log_max_token_rank`: Log-transformed maximum token rank $\ln(1 + \text{max\_token\_rank})$ (detects tail-token sampling).
+- `log_rank_std`: Log-transformed volatility / dispersion $\ln(1 + \text{rank\_std})$ of token rank values across the generation.
 
 ### 2. Behavioral Self-Consistency Probes (5 Features)
 Derived from $k=5$ stochastic candidate responses sampled at $T=0.7, \text{top\_}p=0.9, \text{max\_tokens}=128$:
-- `exact_match_agreement`: Fraction of candidate completions that match the primary response exactly.
+- `exact_match_agreement`: Fraction of unordered pairs among the $k=5$ stochastic completions ($C(5,2)=10$ pairs) with identical normalized text.
 - `mean_pairwise_similarity`: Mean cosine similarity across all 10 response pairs encoded with `sentence-transformers/all-MiniLM-L6-v2`.
 - `min_pairwise_similarity`: Minimum pairwise cosine similarity (lowest consensus pair).
 - `max_pairwise_similarity`: Maximum pairwise cosine similarity.
@@ -140,7 +140,7 @@ Derived from $k=5$ stochastic candidate responses sampled at $T=0.7, \text{top\_
 Computed using `cross-encoder/nli-MiniLM2-L6-H768` evaluated across all $k(k-1) = 20$ directional hypothesis-premise pairs:
 - `mean_pairwise_entailment`: Average directional entailment probability.
 - `mean_pairwise_contradiction`: Average directional contradiction probability.
-- `nli_disagreement`: Symmetric disagreement rate: $1 - \text{Entailment} + \text{Contradiction}$.
+- `nli_disagreement`: Weighted disagreement rate: $\text{Contradiction} + 0.5 \times \text{Neutral}$ (bounded in $[0.0, 1.0]$).
 
 ---
 
@@ -288,16 +288,16 @@ streamlit run app/app.py
    - **Dual Detection Modes**:
      - *Universal Core Mode (19 features)*: Zero-dependency, closed-book detection using internal generation dynamics, stochastic self-consistency, and NLI agreement.
      - *Evidence Groundedness Mode*: Dense passage retrieval against reference context with evidence margin scoring and claim agreement.
-   - **Interactive Benchmark Presets**: Pre-populated examples from HaluEval, TruthfulQA, and FEVER covering both faithful and hallucinated completions.
+   - **Interactive Demo Presets**: Pre-populated factual, adversarial trap, and grounded retrieval queries (`Moon Landing`, `Paris Capital`, `Mars Human`, `CRISPR-Cas9`).
 2. **Multi-Model Benchmark Studio**:
-   - Run multiple causal LLMs (Qwen 3.5, Llama 3.2, Gemma 3) simultaneously on the identical prompt.
+   - Run multiple causal LLMs (Qwen 3.5, Llama 3.2, Gemma 3) on the identical prompt.
    - Side-by-side comparative scorecard featuring cross-model hallucination risk probabilities, entropy distributions, and consensus matrices.
 3. **System Health & Epistemic Drift Watchdog**:
    - Live telemetry monitoring active compute hardware (CUDA GPU vs CPU fallback) and PyTorch tensor allocations.
-   - Real-time epistemic health tracking: session risk distribution, calibration Expected Calibration Error (ECE), and entropy collapse detection.
+   - Epistemic health tracking: active model holdout Expected Calibration Error (ECE), session risk distribution, probe agreement, perplexity anomaly monitoring, and entropy collapse detection.
 4. **Session History & Audit Export**:
    - Persistent query logging across session reruns with complete 15-stage millisecond timing profiles.
-   - One-click JSON serialization and downloadable audit reports.
+   - One-click JSON and CSV serialization for downloadable audit reports.
 5. **Air-Gapped Offline Execution**:
    - Default offline mode (`HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`) ensuring zero runtime network latency and complete data privacy.
 
@@ -332,42 +332,40 @@ VeritasLM/
 │   ├── external/                  # External reference corpora & Wikipedia chunks
 │   ├── processed/                 # Curated 4,000-instance balanced benchmark (Parquet)
 │   └── raw/                       # Immutable source benchmark datasets
-├── docs/                          # Comprehensive research papers & empirical reports
-│   ├── ablation_study.md          # Feature-family ablation report
-│   ├── baseline_modeling.md       # Internal signal baseline models
-│   ├── calibration_analysis.md    # Probability calibration report
-│   ├── combined_model_training.md # Universal Core detector training report
-│   ├── cross_dataset_evaluation.md# Leave-One-Dataset-Out (LODO) generalization report
-│   ├── dataset_pipeline.md        # 4,000-instance benchmark curation report
-│   ├── error_analysis.md          # Comprehensive error analysis & failure mode audit
-│   ├── evidence_retrieval.md      # Dense passage retrieval & evidence margin report
-│   ├── final_project_report.md    # Authoritative scientific research paper
-│   ├── generation_pipeline.md     # Multi-model causal generation pipeline report
-│   ├── master_results_table.md    # Master verified experimental results repository
-│   ├── nli_agreement.md           # Bidirectional cross-encoder NLI agreement report
-│   ├── retrieval_augmented_experiment.md # Standalone retrieval variant report
-│   ├── self_consistency.md        # Stochastic self-consistency probing report
-│   ├── token_signals.md           # White-box token logit & entropy extraction report
-│   └── universal_feature_table.md # Canonical 19-feature schema & anti-leakage audit
 ├── experiments/                   # Persisted experimental artifacts & run logs
 │   ├── ablation/                  # Feature ablation partitions & metrics
-│   ├── baselines/                 # 11-signal baseline model runs & feature parquets
+│   ├── baselines/                 # Qwen 3.5 0.8B 11-signal baseline & 19-feature universal parquets/results
 │   ├── calibration/               # 3-way nested calibration artifacts
 │   ├── cross_dataset/             # LODO zero-shot cross-benchmark results
 │   ├── error_analysis/            # Error classification records & metrics
-│   ├── models/                    # Architecture-specific parquets & results
+│   ├── models/                    # Architecture-specific retraining parquets & results
 │   │   ├── gemma_3_1b_it/         # Gemma 3 1B feature parquet & models
 │   │   ├── llama_3_2_1b_instruct/ # Llama 3.2 1B feature parquet & models
-│   │   └── qwen3_5_0_8b/          # Qwen 3.5 0.8B feature parquet & models
+│   │   └── qwen3_5_0_8b/          # Reserved directory for Qwen 3.5 0.8B retraining runs
 │   └── retrieval_augmented/       # Standalone retrieval variant parquets & evaluations
 ├── models/                        # Production serialized classifiers (.joblib)
 │   ├── gemma_3_1b_it/             # Retrained XGBoost & LR pipelines for Gemma 3
 │   ├── llama_3_2_1b_instruct/     # Retrained XGBoost & LR pipelines for Llama 3.2
 │   └── qwen3_5_0_8b/              # Retrained XGBoost & LR pipelines for Qwen 3.5
-├── reports/                       # Scientific evaluation outputs and deep dives
-│   ├── evaluation/                # Test predictions & error records (JSON, CSV)
-│   ├── information_theoretic_entropy_filtering_study.md
-│   └── semantic_entropy_retraining_study.md
+├── reports/                       # Research documentation & scientific evaluation outputs
+│   ├── docs/                      # Comprehensive research papers & empirical reports
+│   │   ├── ablation_study.md          # Feature-family ablation report
+│   │   ├── baseline_modeling.md       # Internal signal baseline models
+│   │   ├── calibration_analysis.md    # Probability calibration report
+│   │   ├── combined_model_training.md # Universal Core detector training report
+│   │   ├── cross_dataset_evaluation.md# Leave-One-Dataset-Out (LODO) generalization report
+│   │   ├── dataset_pipeline.md        # 4,000-instance benchmark curation report
+│   │   ├── error_analysis.md          # Comprehensive error analysis & failure mode audit
+│   │   ├── evidence_retrieval.md      # Dense passage retrieval & evidence margin report
+│   │   ├── final_project_report.md    # Authoritative scientific research paper
+│   │   ├── generation_pipeline.md     # Multi-model causal generation pipeline report
+│   │   ├── master_results_table.md    # Master verified experimental results repository
+│   │   ├── nli_agreement.md           # Bidirectional cross-encoder NLI agreement report
+│   │   ├── retrieval_augmented_experiment.md # Standalone retrieval variant report
+│   │   ├── self_consistency.md        # Stochastic self-consistency probing report
+│   │   ├── token_signals.md           # White-box token logit & entropy extraction report
+│   │   └── universal_feature_table.md # Canonical 19-feature schema & anti-leakage audit
+│   └── evaluation/                # Test predictions & error records (JSON, CSV)
 ├── src/                           # Core research & inference source code
 │   ├── consistency/               # Self-consistency & NLI agreement extraction
 │   ├── data/                      # Canonical dataset schema & loaders
@@ -378,7 +376,7 @@ VeritasLM/
 │   ├── signals/                   # Token forward passes & white-box logit extraction
 │   ├── training/                  # Retraining pipelines, calibration & cross-validation
 │   └── utils/                     # Unified model downloader, registry & hardware resolution
-├── tests/                         # Comprehensive unit & integration test suite (194 tests)
+├── tests/                         # Comprehensive unit & integration test suite (197 tests)
 ├── .env.example                   # Environment configuration template
 ├── pyproject.toml                 # Packaging metadata & dependency definitions
 ├── requirements.txt               # Locked project dependencies
@@ -393,7 +391,7 @@ VeritasLM/
 
 ### 1. Prerequisites
 - Python 3.10, 3.11, or 3.12
-- NVIDIA GPU with 4GB+ VRAM recommended (verified on RTX 3050 Laptop GPU with CUDA 12.8; automatic CPU fallback supported)
+- NVIDIA GPU with 4GB+ VRAM recommended (verified on RTX 3050 Laptop GPU with CUDA 13.0; automatic CPU fallback supported)
 
 ### 2. Environment Installation
 
@@ -435,7 +433,7 @@ python src/utils/download_model.py --check-only
 ```
 
 ### 4. Run Test Suite
-Verify that all 194 unit and integration tests pass (100% pass rate in ~16s):
+Verify that all 197 unit and integration tests pass (100% pass rate in ~16s):
 
 ```powershell
 python -m pytest tests
@@ -489,16 +487,16 @@ python src/retrieval/retrieval_augmented_experiment.py
 ## 📑 Research Documentation Map
 
 For in-depth mathematical formulations, ablation methodologies, and full diagnostic audits:
-- [docs/final_project_report.md](docs/final_project_report.md): Authoritative scientific research paper detailing theoretical foundations, split protocols, and experimental conclusions.
-- [docs/master_results_table.md](docs/master_results_table.md): Authoritative repository of all empirical benchmark tables and statistical comparisons across all experiments.
-- [docs/ablation_study.md](docs/ablation_study.md): Detailed isolation and Shapley analysis of individual and combined feature families.
-- [docs/calibration_analysis.md](docs/calibration_analysis.md): Reliability diagrams, Platt scaling, and Isotonic regression calibration audit.
-- [docs/cross_dataset_evaluation.md](docs/cross_dataset_evaluation.md): Leave-One-Dataset-Out (LODO) zero-shot cross-benchmark generalization report.
-- [docs/error_analysis.md](docs/error_analysis.md): Descriptive analysis of false positives, false negatives, confidence clustering, and model disagreements.
-- [docs/retrieval_augmented_experiment.md](docs/retrieval_augmented_experiment.md): Standalone external evidence retrieval augmentation experiment report.
-- [docs/universal_feature_table.md](docs/universal_feature_table.md): Canonical 19-feature schema and anti-confounder isolation policy.
-- [docs/baseline_modeling.md](docs/baseline_modeling.md): Standalone 11-signal internal generation dynamics modeling report.
-- [docs/evidence_retrieval.md](docs/evidence_retrieval.md): Dense passage retrieval architecture and evidence margin formulations.
+- [reports/docs/final_project_report.md](reports/docs/final_project_report.md): Authoritative scientific research paper detailing theoretical foundations, split protocols, and experimental conclusions.
+- [reports/docs/master_results_table.md](reports/docs/master_results_table.md): Authoritative repository of all empirical benchmark tables and statistical comparisons across all experiments.
+- [reports/docs/ablation_study.md](reports/docs/ablation_study.md): Detailed isolation and Shapley analysis of individual and combined feature families.
+- [reports/docs/calibration_analysis.md](reports/docs/calibration_analysis.md): Reliability diagrams, Platt scaling, and Isotonic regression calibration audit.
+- [reports/docs/cross_dataset_evaluation.md](reports/docs/cross_dataset_evaluation.md): Leave-One-Dataset-Out (LODO) zero-shot cross-benchmark generalization report.
+- [reports/docs/error_analysis.md](reports/docs/error_analysis.md): Descriptive analysis of false positives, false negatives, confidence clustering, and model disagreements.
+- [reports/docs/retrieval_augmented_experiment.md](reports/docs/retrieval_augmented_experiment.md): Standalone external evidence retrieval augmentation experiment report.
+- [reports/docs/universal_feature_table.md](reports/docs/universal_feature_table.md): Canonical 19-feature schema and anti-confounder isolation policy.
+- [reports/docs/baseline_modeling.md](reports/docs/baseline_modeling.md): Standalone 11-signal internal generation dynamics modeling report.
+- [reports/docs/evidence_retrieval.md](reports/docs/evidence_retrieval.md): Dense passage retrieval architecture and evidence margin formulations.
 
 ---
 

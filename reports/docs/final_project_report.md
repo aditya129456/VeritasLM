@@ -292,7 +292,7 @@ Model performance was evaluated across complementary statistical dimensions:
 
 ## 15. Experimental Results
 
-The following subsections record the exact, validated metrics from [`docs/master_results_table.md`](master_results_table.md).
+The following subsections record the exact, validated metrics from [`reports/docs/master_results_table.md`](master_results_table.md).
 
 ### Table A: Internal Signal Baseline vs. Universal Multi-Signal Detector ($N=800$ Holdout Test)
 | Pipeline / Model | Accuracy | Precision | Recall | F1 | ROC-AUC | PR-AUC | Brier Score | ECE |

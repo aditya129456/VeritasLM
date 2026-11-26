@@ -183,6 +183,87 @@ def get_trained_classifiers(
     return lr_pipeline, xgb_model
 
 
+def get_intermediate_classifiers(
+    model_id: str = "Qwen/Qwen3.5-0.8B",
+    force_reload: bool = False,
+) -> Tuple[Any, Any, Dict[str, Any]]:
+    """
+    Load serialized intermediate-layer probing classifiers and hidden-state probe bundle
+    from models/{slug}_intermediate/ without touching standard baseline models.
+    """
+    global _GLOBAL_MODEL_CACHE
+    from src.utils.model_registry import get_intermediate_saved_model_dir, get_model_slug
+
+    slug = get_model_slug(model_id)
+    key_lr = f"lr_intermediate_{slug}"
+    key_xgb = f"xgb_intermediate_{slug}"
+    key_bundle = f"probe_bundle_{slug}"
+
+    if (
+        not force_reload
+        and key_lr in _GLOBAL_MODEL_CACHE
+        and key_xgb in _GLOBAL_MODEL_CACHE
+        and key_bundle in _GLOBAL_MODEL_CACHE
+    ):
+        return (
+            _GLOBAL_MODEL_CACHE[key_lr],
+            _GLOBAL_MODEL_CACHE[key_xgb],
+            _GLOBAL_MODEL_CACHE[key_bundle],
+        )
+
+    save_dir = get_intermediate_saved_model_dir(model_id)
+    lr_path = save_dir / "lr_pipeline.joblib"
+    xgb_path = save_dir / "xgb_model.joblib"
+    bundle_path = save_dir / "layer_probes.joblib"
+
+    if not (lr_path.exists() and xgb_path.exists() and bundle_path.exists()):
+        raise FileNotFoundError(
+            f"Intermediate probing artifacts not found for '{model_id}' in '{save_dir}'."
+        )
+
+    import joblib
+
+    lr_pipe = joblib.load(lr_path)
+    xgb_mdl = joblib.load(xgb_path)
+    probe_bundle = joblib.load(bundle_path)
+
+    _GLOBAL_MODEL_CACHE[key_lr] = lr_pipe
+    _GLOBAL_MODEL_CACHE[key_xgb] = xgb_mdl
+    _GLOBAL_MODEL_CACHE[key_bundle] = probe_bundle
+    return lr_pipe, xgb_mdl, probe_bundle
+
+
+def extract_intermediate_live_features(
+    model: Any,
+    tokenizer: Any,
+    model_input: str,
+    response: str,
+    probe_bundle: Dict[str, Any],
+    device: Optional[str] = None,
+) -> Dict[str, float]:
+    """
+    Extract intermediate logit-lens, representation geometry, and hidden-state
+    probe features for a single live inference query.
+    """
+    from src.signals.intermediate_probing import extract_single_intermediate_features
+    from src.training.intermediate_models import score_with_probe_bundle
+
+    scalar_features, pooled_vectors = extract_single_intermediate_features(
+        model=model,
+        tokenizer=tokenizer,
+        prompt=model_input,
+        response=response,
+        layer_indices=probe_bundle.get("logit_lens_layers"),
+        probe_layers=probe_bundle.get("probe_layers"),
+        device=device,
+    )
+    probe_features = score_with_probe_bundle(pooled_vectors, probe_bundle)
+    combined: Dict[str, float] = {}
+    combined.update(scalar_features)
+    combined.update(probe_features)
+    return combined
+
+
 def load_inference_models(
     device: Optional[str] = None,
     model_id: str = "Qwen/Qwen3.5-0.8B",
@@ -757,6 +838,7 @@ def compute_feature_contributions(
     xgb_model: Any,
     lr_pipeline: Optional[Any] = None,
     top_k: int = 6,
+    feature_names: Optional[Sequence[str]] = None,
 ) -> List[Dict[str, Any]]:
     """
     Compute mathematically authentic model-level feature contributions for the prediction.
@@ -766,15 +848,18 @@ def compute_feature_contributions(
     or transparent signal-profile deviations.
 
     Parameters:
-        feature_vector: Exact 19-feature dictionary matching UNIVERSAL_CORE_FEATURES.
+        feature_vector: Feature dictionary matching feature_names (or UNIVERSAL_CORE_FEATURES).
         xgb_model: Fitted XGBoost model.
         lr_pipeline: Optional fitted Logistic Regression pipeline.
         top_k: Number of top contributing features to return (default: 6).
+        feature_names: Optional ordered sequence of feature names. Defaults to UNIVERSAL_CORE_FEATURES.
 
     Returns:
         Sorted list of top contribution dictionaries.
     """
     import xgboost as xgb
+
+    active_features = list(feature_names) if feature_names is not None else list(UNIVERSAL_CORE_FEATURES)
 
     feature_display_names = {
         "min_log_prob": "Minimum Token Log-Probability (Bottleneck)",
@@ -798,7 +883,7 @@ def compute_feature_contributions(
         "nli_disagreement": "Composite NLI Disagreement Index",
     }
 
-    X = pd.DataFrame([[feature_vector[f] for f in UNIVERSAL_CORE_FEATURES]], columns=UNIVERSAL_CORE_FEATURES)
+    X = pd.DataFrame([[feature_vector[f] for f in active_features]], columns=active_features)
 
     contributions_dict: Dict[str, float] = {}
     base_value = 0.0
@@ -808,10 +893,10 @@ def compute_feature_contributions(
         if hasattr(xgb_model, "get_booster"):
             dmat = xgb.DMatrix(X)
             raw_contribs = xgb_model.get_booster().predict(dmat, pred_contribs=True)[0]
-            for idx, feat in enumerate(UNIVERSAL_CORE_FEATURES):
+            for idx, feat in enumerate(active_features):
                 contributions_dict[feat] = float(raw_contribs[idx])
             # The final element is the TreeSHAP expected value / base margin: E[f(x)]
-            if len(raw_contribs) > len(UNIVERSAL_CORE_FEATURES):
+            if len(raw_contribs) > len(active_features):
                 base_value = float(raw_contribs[-1])
         else:
             raise AttributeError("xgb_model has no get_booster method")
@@ -824,7 +909,7 @@ def compute_feature_contributions(
                 if scaler is not None and clf is not None:
                     z = (X.values - scaler.mean_) / scaler.scale_
                     lr_contribs = (z * clf.coef_[0])[0]
-                    for idx, feat in enumerate(UNIVERSAL_CORE_FEATURES):
+                    for idx, feat in enumerate(active_features):
                         contributions_dict[feat] = float(lr_contribs[idx])
                     if hasattr(clf, "intercept_"):
                         base_value = float(clf.intercept_[0])
@@ -834,11 +919,11 @@ def compute_feature_contributions(
 
         if not contributions_dict:
             method_used = "Signal Profile (Normalized deviation)"
-            for feat in UNIVERSAL_CORE_FEATURES:
+            for feat in active_features:
                 contributions_dict[feat] = float(feature_vector[feat])
 
     records = []
-    for feat in UNIVERSAL_CORE_FEATURES:
+    for feat in active_features:
         contrib = contributions_dict.get(feat, 0.0)
         val = float(feature_vector[feat])
         direction = "increases risk" if contrib > 0 else "decreases risk"
@@ -1042,6 +1127,8 @@ def run_live_inference(
     is_evidence_mode: Optional[bool] = None,
     max_new_tokens: int = 128,
     temperature: float = 0.0,
+    use_intermediate_probing: bool = False,
+    probe_bundle: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Execute full end-to-end hallucination risk estimation for a single prompt.
@@ -1082,6 +1169,12 @@ def run_live_inference(
 
     # Stage 1: model loading (loading or resolving from memory cache)
     t0_s1 = time.perf_counter()
+    if use_intermediate_probing and (lr_pipeline is None or xgb_model is None or probe_bundle is None):
+        inter_lr, inter_xgb, inter_bundle = get_intermediate_classifiers(model_id=model_id)
+        lr_pipeline = lr_pipeline or inter_lr
+        xgb_model = xgb_model or inter_xgb
+        probe_bundle = probe_bundle or inter_bundle
+
     if (
         causal_model is None
         or tokenizer is None
@@ -1176,10 +1269,26 @@ def run_live_inference(
         sc_features=sc_features,
         nli_features=nli_features,
     )
+    active_feature_columns = list(UNIVERSAL_CORE_FEATURES)
+    intermediate_features: Dict[str, float] = {}
+    if use_intermediate_probing and probe_bundle is not None:
+        intermediate_features = extract_intermediate_live_features(
+            model=causal_model,
+            tokenizer=tokenizer,
+            model_input=model_input,
+            response=primary_response,
+            probe_bundle=probe_bundle,
+            device=actual_device,
+        )
+        full_vector = {**feature_vector, **intermediate_features}
+        active_feature_columns = list(probe_bundle["feature_columns"])
+        scoring_vector = {f: float(full_vector[f]) for f in active_feature_columns}
+    else:
+        scoring_vector = feature_vector
     t_stages["10. feature vector assembly"] = (time.perf_counter() - t0_s10) * 1000.0
 
     # Stage 11: XGBoost prediction & Stage 12: Logistic Regression prediction
-    X_single = pd.DataFrame([[feature_vector[f] for f in UNIVERSAL_CORE_FEATURES]], columns=UNIVERSAL_CORE_FEATURES)
+    X_single = pd.DataFrame([[scoring_vector[f] for f in active_feature_columns]], columns=active_feature_columns)
 
     # 11. XGBoost prediction
     t0_s11 = time.perf_counter()
@@ -1207,10 +1316,11 @@ def run_live_inference(
     # Stage 13: SHAP/XGBoost feature contributions
     t0_s13 = time.perf_counter()
     feature_contributions = compute_feature_contributions(
-        feature_vector=feature_vector,
+        feature_vector=scoring_vector,
         xgb_model=xgb_model,
         lr_pipeline=lr_pipeline,
         top_k=6,
+        feature_names=active_feature_columns,
     )
     t_stages["13. SHAP/XGBoost feature contributions"] = (time.perf_counter() - t0_s13) * 1000.0
 
@@ -1283,6 +1393,8 @@ def run_live_inference(
         "nli_features": nli_features,
         "nli_scores": nli_features,
         "feature_vector": feature_vector,
+        "probing_mode": "intermediate" if (use_intermediate_probing and probe_bundle is not None) else "standard",
+        "intermediate_features": intermediate_features,
         "predicted_risk_xgb": xgb_prob,
         "predicted_risk_lr": lr_prob,
         "predicted_risk_combined": (xgb_prob + lr_prob) / 2.0,

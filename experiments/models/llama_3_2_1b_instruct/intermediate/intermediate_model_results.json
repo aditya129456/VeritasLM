@@ -1,0 +1,311 @@
+{
+  "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+  "model_slug": "llama_3_2_1b_instruct",
+  "training_time_s": 417.03,
+  "train_samples": 3200,
+  "test_samples": 800,
+  "total_features": 92,
+  "feature_breakdown": {
+    "universal_core": 19,
+    "intermediate_logit_lens_and_geometry": 56,
+    "intermediate_hidden_probes": 17
+  },
+  "selected_probe_specs": [
+    {
+      "layer": 5,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 8,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 11,
+      "pool_mode": "resp_mean",
+      "C": 0.005
+    },
+    {
+      "layer": 8,
+      "pool_mode": "resp_last",
+      "C": 0.005
+    },
+    {
+      "layer": 12,
+      "pool_mode": "resp_last",
+      "C": 0.005
+    },
+    {
+      "layer": 5,
+      "pool_mode": "prompt_last",
+      "C": 0.1
+    },
+    {
+      "layer": 11,
+      "pool_mode": "prompt_last",
+      "C": 0.02
+    }
+  ],
+  "logit_lens_layers": [
+    4,
+    8,
+    11,
+    13
+  ],
+  "tuning_info": {
+    "best_lr_C": 0.01,
+    "best_lr_cv_score": 0.90425,
+    "best_xgb_params": {
+      "n_estimators": 150,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "subsample": 0.8,
+      "colsample_bytree": 0.6,
+      "gamma": 0.2,
+      "reg_lambda": 2.0
+    },
+    "best_xgb_cv_score": 0.9065693359375
+  },
+  "best_single_layer_probe": {
+    "layer": 8,
+    "pool_mode": "resp_mean",
+    "C": 0.005,
+    "overall": {
+      "accuracy": 0.82625,
+      "precision": 0.8114558472553699,
+      "recall": 0.85,
+      "f1": 0.8302808302808303,
+      "roc_auc": 0.91048125,
+      "pr_auc": 0.9069312301997059,
+      "brier_score": 0.12141602752877773,
+      "ece": 0.0279798306479279,
+      "confusion_matrix": {
+        "tn": 321,
+        "fp": 79,
+        "fn": 60,
+        "tp": 340
+      }
+    },
+    "subgroups": {
+      "fever": {
+        "accuracy": 0.705,
+        "precision": 0.7029702970297029,
+        "recall": 0.71,
+        "f1": 0.7064676616915423,
+        "roc_auc": 0.7814,
+        "pr_auc": 0.8051019993876287,
+        "brier_score": 0.18986861111152298,
+        "ece": 0.057763481978327036,
+        "confusion_matrix": {
+          "tn": 70,
+          "fp": 30,
+          "fn": 29,
+          "tp": 71
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.98,
+        "precision": 0.9931506849315068,
+        "recall": 0.9666666666666667,
+        "f1": 0.9797297297297297,
+        "roc_auc": 0.9881333333333333,
+        "pr_auc": 0.9806078112054671,
+        "brier_score": 0.027245724838726348,
+        "ece": 0.040582021580291124,
+        "confusion_matrix": {
+          "tn": 149,
+          "fp": 1,
+          "fn": 5,
+          "tp": 145
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.7533333333333333,
+        "precision": 0.7209302325581395,
+        "recall": 0.8266666666666667,
+        "f1": 0.7701863354037267,
+        "roc_auc": 0.8296,
+        "pr_auc": 0.8064723150413241,
+        "brier_score": 0.16995127449699898,
+        "ece": 0.06422228749239975,
+        "confusion_matrix": {
+          "tn": 102,
+          "fp": 48,
+          "fn": 26,
+          "tp": 124
+        },
+        "test_samples": 300
+      }
+    }
+  },
+  "overall_metrics": {
+    "logistic_regression": {
+      "accuracy": 0.845,
+      "precision": 0.8415841584158416,
+      "recall": 0.85,
+      "f1": 0.845771144278607,
+      "roc_auc": 0.9371999999999999,
+      "pr_auc": 0.9418523420845135,
+      "brier_score": 0.10250782366686902,
+      "ece": 0.02853851323157759,
+      "confusion_matrix": {
+        "tn": 336,
+        "fp": 64,
+        "fn": 60,
+        "tp": 340
+      }
+    },
+    "xgboost": {
+      "accuracy": 0.84,
+      "precision": 0.8417085427135679,
+      "recall": 0.8375,
+      "f1": 0.8395989974937343,
+      "roc_auc": 0.9355624999999999,
+      "pr_auc": 0.9418780952602852,
+      "brier_score": 0.1042612240220087,
+      "ece": 0.03879883468383926,
+      "confusion_matrix": {
+        "tn": 337,
+        "fp": 63,
+        "fn": 65,
+        "tp": 335
+      }
+    }
+  },
+  "subgroup_breakdown_by_source": {
+    "logistic_regression": {
+      "fever": {
+        "accuracy": 0.71,
+        "precision": 0.7333333333333333,
+        "recall": 0.66,
+        "f1": 0.6947368421052632,
+        "roc_auc": 0.8138000000000001,
+        "pr_auc": 0.8411587435043102,
+        "brier_score": 0.17546670529551164,
+        "ece": 0.08044098692884297,
+        "confusion_matrix": {
+          "tn": 76,
+          "fp": 24,
+          "fn": 34,
+          "tp": 66
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.9833333333333333,
+        "precision": 0.9931972789115646,
+        "recall": 0.9733333333333334,
+        "f1": 0.9831649831649831,
+        "roc_auc": 0.9982666666666666,
+        "pr_auc": 0.9982946775546542,
+        "brier_score": 0.016389407406943852,
+        "ece": 0.02980353431050814,
+        "confusion_matrix": {
+          "tn": 149,
+          "fp": 1,
+          "fn": 4,
+          "tp": 146
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.7966666666666666,
+        "precision": 0.7664670658682635,
+        "recall": 0.8533333333333334,
+        "f1": 0.807570977917981,
+        "roc_auc": 0.8862222222222222,
+        "pr_auc": 0.8829085243075266,
+        "brier_score": 0.13998698550769914,
+        "ece": 0.06167947668540154,
+        "confusion_matrix": {
+          "tn": 111,
+          "fp": 39,
+          "fn": 22,
+          "tp": 128
+        },
+        "test_samples": 300
+      }
+    },
+    "xgboost": {
+      "fever": {
+        "accuracy": 0.705,
+        "precision": 0.7303370786516854,
+        "recall": 0.65,
+        "f1": 0.6878306878306878,
+        "roc_auc": 0.8148,
+        "pr_auc": 0.8319734946947941,
+        "brier_score": 0.17512216949907766,
+        "ece": 0.08194441576488318,
+        "confusion_matrix": {
+          "tn": 76,
+          "fp": 24,
+          "fn": 35,
+          "tp": 65
+        },
+        "test_samples": 200
+      },
+      "halueval": {
+        "accuracy": 0.98,
+        "precision": 0.9864864864864865,
+        "recall": 0.9733333333333334,
+        "f1": 0.9798657718120806,
+        "roc_auc": 0.9977333333333334,
+        "pr_auc": 0.9979412047579552,
+        "brier_score": 0.01642412099113068,
+        "ece": 0.02136631129775195,
+        "confusion_matrix": {
+          "tn": 148,
+          "fp": 2,
+          "fn": 4,
+          "tp": 146
+        },
+        "test_samples": 300
+      },
+      "truthfulqa": {
+        "accuracy": 0.79,
+        "precision": 0.7701863354037267,
+        "recall": 0.8266666666666667,
+        "f1": 0.797427652733119,
+        "roc_auc": 0.8799111111111112,
+        "pr_auc": 0.8913547607805524,
+        "brier_score": 0.14485769673484072,
+        "ece": 0.05766080590430647,
+        "confusion_matrix": {
+          "tn": 113,
+          "fp": 37,
+          "fn": 26,
+          "tp": 124
+        },
+        "test_samples": 300
+      }
+    }
+  },
+  "delta_vs_old_universal_core": {
+    "logistic_regression": {
+      "accuracy_delta": 0.19374999999999998,
+      "f1_delta": 0.18477478947909298,
+      "roc_auc_delta": 0.24425624999999995,
+      "pr_auc_delta": 0.2737757111350424,
+      "brier_score_delta": -0.1186046847727776,
+      "ece_delta": -0.003389261388545093
+    },
+    "xgboost": {
+      "accuracy_delta": 0.17125,
+      "f1_delta": 0.1562059270038897,
+      "roc_auc_delta": 0.19061249999999974,
+      "pr_auc_delta": 0.1927119643168076,
+      "brier_score_delta": -0.09488056148042508,
+      "ece_delta": -0.00039760957239191874
+    }
+  },
+  "artifacts": {
+    "saved_model_dir": "C:\\Aditya_workspace\\VeritasLM\\models\\llama_3_2_1b_instruct_intermediate",
+    "lr_pipeline": "C:\\Aditya_workspace\\VeritasLM\\models\\llama_3_2_1b_instruct_intermediate\\lr_pipeline.joblib",
+    "xgb_model": "C:\\Aditya_workspace\\VeritasLM\\models\\llama_3_2_1b_instruct_intermediate\\xgb_model.joblib",
+    "layer_probes": "C:\\Aditya_workspace\\VeritasLM\\models\\llama_3_2_1b_instruct_intermediate\\layer_probes.joblib",
+    "experiment_dir": "C:\\Aditya_workspace\\VeritasLM\\experiments\\models\\llama_3_2_1b_instruct\\intermediate"
+  }
+}

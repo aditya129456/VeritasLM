@@ -150,9 +150,9 @@ Evaluation on the holdout test set partitioned by benchmark task family:
 ## 8. Artifacts and Reproducibility
 
 All experiment outputs have been generated and validated:
-- Pipeline: [src/training/combined_models.py](../src/training/combined_models.py)
-- Test Suite: [tests/test_combined_models.py](../tests/test_combined_models.py)
-- Metrics Summary JSON: [combined_model_results.json](../experiments/baselines/combined/combined_model_results.json)
-- Metrics Summary CSV: [combined_model_results.csv](../experiments/baselines/combined/combined_model_results.csv)
-- Test Predictions Parquet: [combined_test_predictions.parquet](../experiments/baselines/combined/combined_test_predictions.parquet)
-- Test Predictions CSV: [combined_test_predictions.csv](../experiments/baselines/combined/combined_test_predictions.csv)
+- Pipeline: [src/training/combined_models.py](../../src/training/combined_models.py)
+- Test Suite: [tests/test_combined_models.py](../../tests/test_combined_models.py)
+- Metrics Summary JSON: [combined_model_results.json](../../experiments/baselines/combined/combined_model_results.json)
+- Metrics Summary CSV: [combined_model_results.csv](../../experiments/baselines/combined/combined_model_results.csv)
+- Test Predictions Parquet: [combined_test_predictions.parquet](../../experiments/baselines/combined/combined_test_predictions.parquet)
+- Test Predictions CSV: [combined_test_predictions.csv](../../experiments/baselines/combined/combined_test_predictions.csv)

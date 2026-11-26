@@ -30,6 +30,14 @@ from src.training.combined_models import (
     compute_baseline_comparison,
     run_combined_experiment,
 )
+from src.training.intermediate_models import (
+    get_intermediate_saved_model_dir,
+    get_intermediate_experiment_dir,
+    sweep_intermediate_layers,
+    fit_and_extract_probe_features,
+    score_with_probe_bundle,
+    train_intermediate_models_for_model,
+)
 
 __all__ = [
     "PRIMARY_SIGNAL_FEATURES",
@@ -52,6 +60,12 @@ __all__ = [
     "evaluate_by_source_dataset",
     "compute_baseline_comparison",
     "run_combined_experiment",
+    "get_intermediate_saved_model_dir",
+    "get_intermediate_experiment_dir",
+    "sweep_intermediate_layers",
+    "fit_and_extract_probe_features",
+    "score_with_probe_bundle",
+    "train_intermediate_models_for_model",
 ]
 
 

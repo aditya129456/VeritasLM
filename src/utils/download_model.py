@@ -338,7 +338,7 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--check-only",
         action="store_true",
-        help="Check whether the model is cached locally without initiating download.",
+        help="Check whether the specified model (or all configured models and auxiliary encoders if omitted) is cached locally without initiating download.",
     )
     parser.add_argument(
         "--no-encoders",
@@ -353,6 +353,27 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     return parser.parse_args(args)
 
 
+def _report_cache_status(
+    models: List[str],
+    encoders: List[str],
+    cache_dir: Optional[str | Path] = None,
+) -> tuple[dict[str, bool], dict[str, bool]]:
+    """Print and return local cache status for the given models and auxiliary encoders."""
+    model_status: dict[str, bool] = {}
+    for model_id in models:
+        cached = is_model_fully_cached(model_id, cache_dir=cache_dir)
+        model_status[model_id] = cached
+        print(f"Model '{model_id}' cached locally: {cached}")
+
+    encoder_status: dict[str, bool] = {}
+    for aux_id in encoders:
+        cached = is_model_fully_cached(aux_id, cache_dir=cache_dir)
+        encoder_status[aux_id] = cached
+        print(f"Auxiliary encoder '{aux_id}' cached locally: {cached}")
+
+    return model_status, encoder_status
+
+
 def main(cli_args: Optional[List[str]] = None) -> None:
     """CLI entry point for unified model downloader."""
     logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s - %(message)s")
@@ -360,6 +381,15 @@ def main(cli_args: Optional[List[str]] = None) -> None:
 
     target_model = args.model or args.model_id
     if not target_model:
+        if args.check_only:
+            model_status, encoder_status = _report_cache_status(
+                CONFIGURED_MODELS,
+                AUXILIARY_MODELS,
+                cache_dir=args.cache_dir,
+            )
+            default_ready = model_status.get(DEFAULT_MODEL_ID, False) and all(encoder_status.values())
+            sys.exit(0 if default_ready else 1)
+
         print("Error: No model specified. Please specify a model ID or alias (e.g. 'qwen', 'llama', 'gemma', 'encoders').", file=sys.stderr)
         print("Configured models:\n  " + "\n  ".join(CONFIGURED_MODELS), file=sys.stderr)
         print("Auxiliary encoders:\n  " + "\n  ".join(AUXILIARY_MODELS), file=sys.stderr)
@@ -368,13 +398,8 @@ def main(cli_args: Optional[List[str]] = None) -> None:
     # Special handling for auxiliary encoders bundle
     if target_model.strip().lower() in ("encoders", "auxiliary", "encoder"):
         if args.check_only:
-            all_cached = True
-            for aux_id in AUXILIARY_MODELS:
-                cached = is_model_fully_cached(aux_id, cache_dir=args.cache_dir)
-                print(f"Auxiliary encoder '{aux_id}' cached locally: {cached}")
-                if not cached:
-                    all_cached = False
-            sys.exit(0 if all_cached else 1)
+            _, encoder_status = _report_cache_status([], AUXILIARY_MODELS, cache_dir=args.cache_dir)
+            sys.exit(0 if all(encoder_status.values()) else 1)
         ok = ensure_auxiliary_models_cached(cache_dir=args.cache_dir, force=args.force)
         sys.exit(0 if ok else 1)
 
@@ -385,12 +410,8 @@ def main(cli_args: Optional[List[str]] = None) -> None:
         sys.exit(1)
 
     if args.check_only:
-        cached = is_model_fully_cached(canonical_id, cache_dir=args.cache_dir)
-        print(f"Model '{canonical_id}' cached locally: {cached}")
-        for aux_id in AUXILIARY_MODELS:
-            aux_cached = is_model_fully_cached(aux_id, cache_dir=args.cache_dir)
-            print(f"Auxiliary encoder '{aux_id}' cached locally: {aux_cached}")
-        sys.exit(0 if cached else 1)
+        model_status, _ = _report_cache_status([canonical_id], AUXILIARY_MODELS, cache_dir=args.cache_dir)
+        sys.exit(0 if model_status[canonical_id] else 1)
 
     snapshot_path = download_model(
         model=canonical_id,

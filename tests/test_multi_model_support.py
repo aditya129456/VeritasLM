@@ -145,3 +145,48 @@ def test_get_trained_classifiers_llama_fallback():
     assert xgb is not None
     assert hasattr(lr, "predict_proba")
     assert hasattr(xgb, "predict_proba")
+
+
+def test_download_model_check_only_without_model(capsys):
+    """Verify --check-only without a model checks all configured models and auxiliary encoders."""
+    import importlib
+
+    download_model_mod = importlib.import_module("src.utils.download_model")
+
+    with patch.object(download_model_mod, "is_model_fully_cached") as mock_cached:
+        mock_cached.side_effect = lambda model_id, cache_dir=None: model_id in (
+            DEFAULT_MODEL_ID,
+            *download_model_mod.AUXILIARY_MODELS,
+        )
+        with pytest.raises(SystemExit) as exc:
+            download_model_mod.main(["--check-only"])
+
+    assert exc.value.code == 0
+    out = capsys.readouterr().out
+    assert f"Model '{DEFAULT_MODEL_ID}' cached locally: True" in out
+    assert f"Auxiliary encoder '{download_model_mod.AUXILIARY_MODELS[0]}' cached locally: True" in out
+
+
+def test_download_model_check_only_missing_default_exits_nonzero():
+    """Verify --check-only without a model exits 1 when default model or an encoder is missing."""
+    import importlib
+
+    download_model_mod = importlib.import_module("src.utils.download_model")
+
+    with patch.object(download_model_mod, "is_model_fully_cached", return_value=False):
+        with pytest.raises(SystemExit) as exc:
+            download_model_mod.main(["--check-only"])
+
+    assert exc.value.code == 1
+
+
+def test_download_model_no_args_without_check_only_errors():
+    """Verify invoking download_model CLI without model or --check-only exits 1."""
+    import importlib
+
+    download_model_mod = importlib.import_module("src.utils.download_model")
+
+    with pytest.raises(SystemExit) as exc:
+        download_model_mod.main([])
+
+    assert exc.value.code == 1
